@@ -87,9 +87,16 @@ class boolean_expression:
                 minterms.append(inputs)
             inputs += 1
             
-        return {"m": minterms, "M": maxterms}
+        return {"m": tuple(minterms), "M": tuple(maxterms)}
+        
+    def SOP_form(self, minterms=[], dcs=[]):
+        if len(minterms) == 0:
+            minterms = self.min_max_terms()["m"]
+        
+        
         
 s = "AB + (C+D)\\"
 f = boolean_expression(s)
+terms = f.min_max_terms()
 f.truth_table()
-print(f.min_max_terms())
+
