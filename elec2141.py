@@ -69,7 +69,27 @@ class boolean_expression:
             inputs += 1
             
         print(truth_table)
+    
+    def min_max_terms(self):
+        minterms = []
+        maxterms = []
         
-s = "(A+B)\\"
+        inputs = 0
+        while inputs < (2 ** len(self._params)):
+            expression = self._expr
+            for i in range(len(self._params)):
+                bit = (inputs >> (len(self._params) - i - 1)) & 1
+                expression = expression.replace(self._params[i], str(bit))
+                
+            if int(eval(expression)) == 0:
+                maxterms.append(inputs)
+            else:
+                minterms.append(inputs)
+            inputs += 1
+            
+        return {"m": minterms, "M": maxterms}
+        
+s = "AB + (C+D)\\"
 f = boolean_expression(s)
 f.truth_table()
+print(f.min_max_terms())
