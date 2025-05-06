@@ -14,43 +14,43 @@ class boolean_expression:
                 temp += expression[i]
                 
         expression = temp.replace("+", " or ")
-        
+
         while complement in expression:
             i = len(expression) - expression[::-1].find(complement) - 2
-            stack = []
-            if expression[i] == ")":
-                stack.append(expression[i])
+
+            temp = list(expression)
+            temp.pop(i + 1)
+            expression = "".join(str(char) for char in temp)
+            bracket_count = int(expression[i] == ")")
             
             j = i - 1
-            while len(stack) > 0:
+            while bracket_count > 0:
                 if expression[j] == ")":
-                    stack.append(expression[j])
+                    bracket_count += 1
                 elif expression[j] == "(":
-                    stack.pop()
+                    bracket_count -= 1
                 j -= 1
-            expression = f"{expression[:j]} (not {expression[j+1:i+1]}){expression[i+2:]}"
+                
+            expression = f"{expression[:j+1]}(not {expression[j+1:i+1]}){expression[i+1:]}"
             
         self._expr = expression
         
+        temp = expression.replace("and", "").replace("or", "").replace("not", "")
         params = []
-        for char in expression:
+        for char in temp:
             if char not in " ()&|~10" and char not in params:
                 params.append(char)
-        self._params = tuple(params)
+        self._params = tuple(sorted(params))
         
     def evaluate(self, inputs):
         inputs = inputs.replace(" ", "")
         inputs = inputs.split(",")
 
         expression = self._expr
-        print(expression)
         for param in inputs:
             expression = expression.replace(param[0], param[2])
         return int(eval(expression))
         
-s = "A(BC\\ + (B+C)\\)\\"
+s = "A(B\\C\\ + (B+C)\\)\\"
 f = boolean_expression(s)
 print(f.evaluate("A=1, B=0, C=1"))
-
-
-    
