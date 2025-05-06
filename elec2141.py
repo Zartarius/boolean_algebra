@@ -62,7 +62,7 @@ class boolean_expression:
         while inputs < (2 ** len(self._params)):
             expression = self._expr
             for i in range(len(self._params)):
-                bit = (inputs >> (len(self._params) - i)) & 1
+                bit = (inputs >> (len(self._params) - i - 1)) & 1
                 truth_table += f" {bit} |"
                 expression = expression.replace(self._params[i], str(bit))
             truth_table += f"  {int(eval(expression))}\n"
@@ -70,6 +70,6 @@ class boolean_expression:
             
         print(truth_table)
         
-s = "A(B\\C\\ + (B+C)\\)\\"
+s = "(A+B)\\"
 f = boolean_expression(s)
 f.truth_table()
