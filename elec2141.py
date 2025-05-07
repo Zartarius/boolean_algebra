@@ -3,9 +3,20 @@ complement = "\\"
 class boolean_expression:
     global complement
         
-    def __init__(self, expression, complement=complement):
-        expression = expression.replace(" ", "")
+    def __init__(self, expression=None, minterms=None, maxterms=None, dcs=None, params=None, complement=complement):
+        self._m = None
+        self._M = None
         
+        if expression == None:
+            self._expr = None
+            if minterms != None:
+                self._m = minterms
+            else:
+                self._M = maxterms
+            self._params = params
+            return
+        
+        expression = expression.replace(" ", "")
         temp = ""
         for i in range(len(expression)):
             if i != len(expression) - 1 and expression[i] not in "+(" and expression[i + 1] not in f"+){complement}":
@@ -45,10 +56,17 @@ class boolean_expression:
     def evaluate(self, inputs):
         inputs = inputs.replace(" ", "")
         inputs = inputs.split(",")
+        
+        if self.expr == None:
+            decimal = 0
+            for bit in inputs:
+                decimal = (decimal << 1) | int(bit[1])
+            return 1 if decimal in self._m else 0
 
         expression = self._expr
         for param in inputs:
             expression = expression.replace(param[0], param[2])
+            
         return int(eval(expression))
         
     def truth_table(self):
@@ -59,6 +77,16 @@ class boolean_expression:
         truth_table += ("-" * (len(self._params) * 5 + 2)) + "\n"
         
         inputs = 0
+        if self._expr == None:
+            while inputs < (2 ** len(self._params)):
+                for i in range(len(self._params)):
+                    bit = (inputs >> (len(self._params) - i - 1)) & 1
+                    truth_table += f" {bit} |"
+                truth_table += f"  {1 if inputs in self._m else 0}\n"
+                inputs += 1
+            print(truth_table)
+            return
+            
         while inputs < (2 ** len(self._params)):
             expression = self._expr
             for i in range(len(self._params)):
@@ -74,6 +102,15 @@ class boolean_expression:
         minterms = []
         maxterms = []
         
+        if self._expr == None:
+            for i in range(2 ** len(self._params)):
+                if self._m != None and i not in self._m:
+                    maxterms.append(i)
+                elif self._M != None and i not in self._M:
+                    minterms.append(i)
+                    
+            return {"minterms": self._m if self._m != None else tuple(minterms), "maxterms": self._M if self._M != None else tuple(maxterms)}
+        
         inputs = 0
         while inputs < (2 ** len(self._params)):
             expression = self._expr
@@ -87,16 +124,17 @@ class boolean_expression:
                 minterms.append(inputs)
             inputs += 1
             
-        return {"m": tuple(minterms), "M": tuple(maxterms)}
+        return {"minterms": tuple(minterms), "maxterms": tuple(maxterms)}
         
-    def SOP_form(self, minterms=[], dcs=[]):
-        if len(minterms) == 0:
-            minterms = self.min_max_terms()["m"]
+    def SOP_form(self):
+        minterms = self.min_max_terms()["minterms"]
         
         
         
 s = "AB + (C+D)\\"
-f = boolean_expression(s)
+m = (1,2,3,4,5,6,7)
+p = ('A', 'B', 'C', 'D')
+f = boolean_expression(minterms=m, params=p)
 terms = f.min_max_terms()
+print(terms)
 f.truth_table()
-
