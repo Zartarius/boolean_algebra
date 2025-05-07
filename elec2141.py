@@ -24,10 +24,8 @@ class boolean_expression:
             
             j = i - 1
             while bracket_count > 0:
-                if expression[j] == ")":
-                    bracket_count += 1
-                elif expression[j] == "(":
-                    bracket_count -= 1
+                if expression[j] == ")": bracket_count += 1
+                elif expression[j] == "(": bracket_count -= 1
                 j -= 1
                 
             expression = f"{expression[:j+1]}(not {expression[j+1:i+1]}){expression[i+1:]}"
@@ -97,16 +95,11 @@ class boolean_terms:
         m = []
         M = []
         for i in range(2 ** len(params)):
-            if i in dcs:
-                continue
-            elif len(minterms) > 0 and i in minterms:
-                m.append(i)
-            elif len(minterms) > 0 and i not in minterms:
-                M.append(i)
-            elif len(maxterms) > 0 and i in maxterms:
-                M.append(i)
-            elif len(maxterms) > 0 and i not in maxterms:
-                m.append(i)
+            if i in dcs: continue
+            elif len(minterms) > 0 and i in minterms: m.append(i)
+            elif len(minterms) > 0 and i not in minterms: M.append(i)
+            elif len(maxterms) > 0 and i in maxterms: M.append(i)
+            elif len(maxterms) > 0 and i not in maxterms: m.append(i)
         
         self._m = tuple(m)
         self._M = tuple(M)
@@ -136,12 +129,9 @@ class boolean_terms:
             for i in range(len(self._params)):
                 bit = (bits >> (len(self._params) - i - 1)) & 1
                 truth_table += f" {bit} |"
-            if bits in self._m:
-                truth_table += "  1\n"
-            elif bits in self._M:
-                truth_table += "  0\n"
-            else:
-                truth_table += "  x\n"
+            if bits in self._m: truth_table += "  1\n"
+            elif bits in self._M: truth_table += "  0\n"
+            else: truth_table += "  x\n"
         print(truth_table)
         
         
