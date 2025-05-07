@@ -1,7 +1,27 @@
 complement = "\\"
 
-def _quine_mccluskey(minterms):
-    pass
+def _my_bin(x, num_bits=8):
+    bits = [(x >> i) & 1 for i in range(num_bits-1, -1, -1)]
+    return "".join(str(bit) for bit in bits)
+
+def _quine_mccluskey(m):
+    groups = {}
+    for minterm in m:
+        num_1_bits = _my_bin(minterm).count("1")
+        if num_1_bits in groups.keys(): groups[num_1_bits].append(minterm)
+        else: groups[num_1_bits] = [minterm]
+    
+    pairs = []
+    for num_1_bits in groups.keys():
+        if (num_1_bits + 1) not in groups.keys():
+            continue
+        for minterm1 in groups[num_1_bits]:
+            for minterm2 in groups[num_1_bits + 1]:
+                if _my_bin(minterm1 ^ minterm2).count("1") != 1:
+                    continue
+                bits = ["_" if x != y else str(x) for x, y in zip(_my_bin(minterm1), _my_bin(minterm2))]
+                bits = "".join(char for char in bits)
+                pairs.append((minterm1, minterm2, bits))
 
 class boolean_expression:
     global complement
@@ -136,3 +156,5 @@ class boolean_terms:
             elif bits in self._M: truth_table += "  0\n"
             else: truth_table += "  x\n"
         print(truth_table)
+
+_quine_mccluskey((1,2,3))
