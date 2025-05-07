@@ -1,5 +1,8 @@
 complement = "\\"
 
+def _quine_mccluskey(minterms):
+    pass
+
 class boolean_expression:
     global complement
         
