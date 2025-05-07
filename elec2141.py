@@ -114,7 +114,7 @@ class boolean_expression:
         
         if self._expr == None:
             for i in range(2 ** len(self._params)):
-                if self._m != None and i not in self._m and(self._dcs == None or i not in self._dcs):
+                if self._m != None and i not in self._m and (self._dcs == None or i not in self._dcs):
                     maxterms.append(i)
                 elif self._M != None and i not in self._M and (self._dcs == None or i not in self._dcs):
                     minterms.append(i)
