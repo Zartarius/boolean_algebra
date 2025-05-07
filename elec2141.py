@@ -4,19 +4,6 @@ class boolean_expression:
     global complement
         
     def __init__(self, expression=None, minterms=None, maxterms=None, dcs=None, params=None, complement=complement):
-        self._m = None
-        self._M = None
-        self._dcs = dcs
-        
-        if expression == None:
-            self._expr = None
-            if minterms != None:
-                self._m = minterms
-            else:
-                self._M = maxterms
-            self._params = params
-            return
-        
         expression = expression.replace(" ", "")
         temp = ""
         for i in range(len(expression)):
@@ -57,12 +44,6 @@ class boolean_expression:
     def evaluate(self, inputs):
         inputs = inputs.replace(" ", "")
         inputs = inputs.split(",")
-        
-        if self.expr == None:
-            decimal = 0
-            for bit in inputs:
-                decimal = (decimal << 1) | int(bit[1])
-            return 1 if decimal in self._m else 0
 
         expression = self._expr
         for param in inputs:
@@ -74,37 +55,15 @@ class boolean_expression:
         truth_table = ""
         for param in self._params:
             truth_table += f" {param} |"
-        truth_table += " OUT\n"
-        truth_table += ("-" * (len(self._params) * 5 + 2)) + "\n"
+        truth_table += " OUT\n" + ("-" * (len(self._params) * 5 + 2)) + "\n"
         
-        inputs = 0
-        if self._expr == None:
-            terms = self.min_max_terms()
-            self._m = terms["minterms"]
-            self._M = terms["maxterms"]
-            
-            while inputs < (2 ** len(self._params)):
-                for i in range(len(self._params)):
-                    bit = (inputs >> (len(self._params) - i - 1)) & 1
-                    truth_table += f" {bit} |"
-                if inputs in self._m:
-                    truth_table += "  1\n"
-                elif inputs in self._M:
-                    truth_table += "  0\n"
-                else:
-                    truth_table += "  x\n"
-                inputs += 1
-            print(truth_table)
-            return
-            
-        while inputs < (2 ** len(self._params)):
+        for bits in range(2 ** len(self._params)):
             expression = self._expr
             for i in range(len(self._params)):
-                bit = (inputs >> (len(self._params) - i - 1)) & 1
+                bit = (bits >> (len(self._params) - i - 1)) & 1
                 truth_table += f" {bit} |"
                 expression = expression.replace(self._params[i], str(bit))
             truth_table += f"  {int(eval(expression))}\n"
-            inputs += 1
             
         print(truth_table)
     
@@ -112,29 +71,14 @@ class boolean_expression:
         minterms = []
         maxterms = []
         
-        if self._expr == None:
-            for i in range(2 ** len(self._params)):
-                if self._m != None and i not in self._m and (self._dcs == None or i not in self._dcs):
-                    maxterms.append(i)
-                elif self._M != None and i not in self._M and (self._dcs == None or i not in self._dcs):
-                    minterms.append(i)
-                    
-            return {"minterms": self._m if self._m != None else tuple(minterms), 
-                    "maxterms": self._M if self._M != None else tuple(maxterms), 
-                    "don't cares": self._dcs}
-        
-        inputs = 0
-        while inputs < (2 ** len(self._params)):
+        for bits in range(2 ** len(self._params)):
             expression = self._expr
             for i in range(len(self._params)):
-                bit = (inputs >> (len(self._params) - i - 1)) & 1
+                bit = (bits >> (len(self._params) - i - 1)) & 1
                 expression = expression.replace(self._params[i], str(bit))
                 
-            if int(eval(expression)) == 0:
-                maxterms.append(inputs)
-            else:
-                minterms.append(inputs)
-            inputs += 1
+            if int(eval(expression)) == 0: maxterms.append(bits)
+            else: minterms.append(bits)
             
         return {"minterms": tuple(minterms), "maxterms": tuple(maxterms)}
         
@@ -142,12 +86,72 @@ class boolean_expression:
         minterms = self.min_max_terms()["minterms"]
         
         
+class boolean_terms:
+    global complement
+    
+    def __init__(self, params, minterms=(), maxterms=(), dcs=(), complement=complement):
+        self._params = params
+        self._dcs = dcs
+        self._cmpl = complement
+        
+        m = []
+        M = []
+        for i in range(2 ** len(params)):
+            if i in dcs:
+                continue
+            elif len(minterms) > 0 and i in minterms:
+                m.append(i)
+            elif len(minterms) > 0 and i not in minterms:
+                M.append(i)
+            elif len(maxterms) > 0 and i in maxterms:
+                M.append(i)
+            elif len(maxterms) > 0 and i not in maxterms:
+                m.append(i)
+        
+        self._m = tuple(m)
+        self._M = tuple(M)
+        
+    def evaluate(self, inputs):
+        inputs = inputs.replace(" ", "")
+        inputs = inputs.split(",")
+        
+        decimal = 0
+        for bit in inputs:
+            decimal = (decimal << 1) | int(bit[1])
+            
+        if decimal in self._m: return 1
+        elif decimal in self._M: return 0
+        else: return None
+        
+    def min_max_terms(self):
+        return {"minterms": self._m, "maxterms": self._M, "don't cares": self._dcs}
+        
+    def truth_table(self):
+        truth_table = ""
+        for param in self._params:
+            truth_table += f" {param} |"
+        truth_table += " OUT\n" + ("-" * (len(self._params) * 5 + 2)) + "\n"
+        
+        for bits in range(2 ** len(self._params)):
+            for i in range(len(self._params)):
+                bit = (bits >> (len(self._params) - i - 1)) & 1
+                truth_table += f" {bit} |"
+            if bits in self._m:
+                truth_table += "  1\n"
+            elif bits in self._M:
+                truth_table += "  0\n"
+            else:
+                truth_table += "  x\n"
+        print(truth_table)
+        
         
 s = "AB + (C+D)\\"
 m = (1,2,3,4,5,6,7)
 d = (9, 10)
 p = ('A', 'B', 'C', 'D')
-f = boolean_expression(minterms=m, params=p, dcs=d)
-terms = f.min_max_terms()
+f = boolean_expression(s)
+g = boolean_terms(p, minterms=m, dcs=d)
+terms = g.min_max_terms()
 print(terms)
 f.truth_table()
+g.truth_table()
