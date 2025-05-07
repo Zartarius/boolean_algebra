@@ -3,7 +3,7 @@ complement = "\\"
 class boolean_expression:
     global complement
         
-    def __init__(self, expression=None, minterms=None, maxterms=None, dcs=None, params=None, complement=complement):
+    def __init__(self, expression, complement=complement):
         expression = expression.replace(" ", "")
         temp = ""
         for i in range(len(expression)):
