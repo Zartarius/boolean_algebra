@@ -133,15 +133,3 @@ class boolean_terms:
             elif bits in self._M: truth_table += "  0\n"
             else: truth_table += "  x\n"
         print(truth_table)
-        
-        
-s = "AB + (C+D)\\"
-m = (1,2,3,4,5,6,7)
-d = (9, 10)
-p = ('A', 'B', 'C', 'D')
-f = boolean_expression(s)
-g = boolean_terms(p, minterms=m, dcs=d)
-terms = g.min_max_terms()
-print(terms)
-f.truth_table()
-g.truth_table()
