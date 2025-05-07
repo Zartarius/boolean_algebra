@@ -109,7 +109,8 @@ class boolean_expression:
                 elif self._M != None and i not in self._M:
                     minterms.append(i)
                     
-            return {"minterms": self._m if self._m != None else tuple(minterms), "maxterms": self._M if self._M != None else tuple(maxterms)}
+            return {"minterms": self._m if self._m != None else tuple(minterms), 
+                    "maxterms": self._M if self._M != None else tuple(maxterms)}
         
         inputs = 0
         while inputs < (2 ** len(self._params)):
