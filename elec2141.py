@@ -6,6 +6,7 @@ class boolean_expression:
     def __init__(self, expression=None, minterms=None, maxterms=None, dcs=None, params=None, complement=complement):
         self._m = None
         self._M = None
+        self._dcs = dcs
         
         if expression == None:
             self._expr = None
@@ -78,11 +79,20 @@ class boolean_expression:
         
         inputs = 0
         if self._expr == None:
+            terms = self.min_max_terms()
+            self._m = terms["minterms"]
+            self._M = terms["maxterms"]
+            
             while inputs < (2 ** len(self._params)):
                 for i in range(len(self._params)):
                     bit = (inputs >> (len(self._params) - i - 1)) & 1
                     truth_table += f" {bit} |"
-                truth_table += f"  {1 if inputs in self._m else 0}\n"
+                if inputs in self._m:
+                    truth_table += "  1\n"
+                elif inputs in self._M:
+                    truth_table += "  0\n"
+                else:
+                    truth_table += "  x\n"
                 inputs += 1
             print(truth_table)
             return
@@ -104,13 +114,14 @@ class boolean_expression:
         
         if self._expr == None:
             for i in range(2 ** len(self._params)):
-                if self._m != None and i not in self._m:
+                if self._m != None and i not in self._m and(self._dcs == None or i not in self._dcs):
                     maxterms.append(i)
-                elif self._M != None and i not in self._M:
+                elif self._M != None and i not in self._M and (self._dcs == None or i not in self._dcs):
                     minterms.append(i)
                     
             return {"minterms": self._m if self._m != None else tuple(minterms), 
-                    "maxterms": self._M if self._M != None else tuple(maxterms)}
+                    "maxterms": self._M if self._M != None else tuple(maxterms), 
+                    "don't cares": self._dcs}
         
         inputs = 0
         while inputs < (2 ** len(self._params)):
@@ -134,8 +145,9 @@ class boolean_expression:
         
 s = "AB + (C+D)\\"
 m = (1,2,3,4,5,6,7)
+d = (9, 10)
 p = ('A', 'B', 'C', 'D')
-f = boolean_expression(minterms=m, params=p)
+f = boolean_expression(minterms=m, params=p, dcs=d)
 terms = f.min_max_terms()
 print(terms)
 f.truth_table()
