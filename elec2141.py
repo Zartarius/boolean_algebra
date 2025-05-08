@@ -4,7 +4,90 @@ def _my_bin(x, num_bits=4):
     bits = [(x >> i) & 1 for i in range(num_bits-1, -1, -1)]
     return "".join(str(bit) for bit in bits)
 
+'''
+def _unique_tuple(p_impl, p_implicants):
+    for p_implicant in p_implicants:
+        if sorted(p_implicant[:-1]) == sorted(p_impl[:-1]):
+            return False
+    return True
+'''
+
+def _quine_mccluskey_pt1(groups):
+    base_case = True
+    new_groups = {i: [] for i in sorted(groups.keys())[:-1]}
+    checked = set()
+
+    for group in sorted(groups.keys())[:-1]:
+        for b1 in groups[group]:
+            for b2 in groups[group+1]:
+                if sum(1 if x != y else 0 for x, y in zip(b1[-1], b2[-1])) != 1:
+                    continue
+                base_case = False
+                new_bits = ["-" if x != y else x for x, y in zip(b1[-1], b2[-1])]
+                new_bits = "".join(bit for bit in new_bits)
+                new_group = tuple(sorted(b1[:-1] + b2[:-1]) + [new_bits])
+
+                checked.add(tuple(sorted(b1[:-1])))
+                checked.add(tuple(sorted(b2[:-1])))
+                
+                if new_group not in new_groups[group]:
+                    new_groups[group].append(new_group)
+
+    if base_case is True:
+        return []
+    
+    p_implicants = []
+    for group in groups.values():
+        for minterms in group:
+            if tuple(sorted(minterms[:-1])) not in checked:
+                p_implicants.append(minterms)
+
+    print(checked)
+    print(new_groups)
+    return p_implicants + _quine_mccluskey_pt1(new_groups)
+
+    
+'''
 def _quine_mccluskey(m, dcs):
+    groups = {}
+    for term in m:
+        num_1_bits = _my_bin(term).count("1")
+        if num_1_bits not in groups.keys(): groups[num_1_bits] = [term]
+        else: groups[num_1_bits].append(term)
+
+    paired_groups = {}
+    group_num = 0
+    for num_1_bits in sorted(groups.keys()):
+        if (num_1_bits + 1) not in groups.keys():
+            continue
+        for m1 in groups[num_1_bits]:
+            for m2 in groups[num_1_bits + 1]:
+                if _my_bin(m1 ^ m2).count("1") != 1:
+                    continue
+                bits = ["-" if x != y else str(x) for x, y in zip(_my_bin(m1), _my_bin(m2))]
+                bits = "".join(char for char in bits)
+
+                if group_num in paired_groups.keys(): paired_groups[group_num].append((m1, m2, bits))
+                else: paired_groups[group_num] = [(m1, m2, bits)]
+        group_num += 1
+
+    p_implicants = []
+    for group_num in range(len(paired_groups.keys())-1):
+        for m11, m12, bits1 in paired_groups[group_num]:
+            for m21, m22, bits2 in paired_groups[group_num + 1]:
+                if bits1.find("-") != bits2.find("-"):
+                    continue
+                new_bits = ["-" if x != y else x for x, y in zip(bits1, bits2)]
+                new_bits = "".join(char for char in new_bits)
+                if new_bits.find("-") != 2:
+                    continue
+
+                new_p_implicant = (m11, m12, m21, m22, new_bits)
+                if _unique_tuple(new_p_implicant, p_implicants):
+                    p_implicants.append(new_p_implicant)
+                
+    print(p_implicants)
+    
     groups = {}
     for term in (m + dcs):
         num_1_bits = _my_bin(term).count("1")
@@ -39,6 +122,7 @@ def _quine_mccluskey(m, dcs):
                 p_implicants.append((m11, m12, m21, m22, new_bits))
 
     print(p_implicants)
+    '''
 
 
 
@@ -124,6 +208,12 @@ class boolean_expression:
         
     def SOP_form(self):
         minterms = self.min_max_terms()["minterms"]
+        groups = {i: [] for i in range(len(self._params)+1)}
+
+        for minterm in minterms:
+            groups[_my_bin(minterm).count("1")].append((minterm, _my_bin(minterm)))
+        
+        print(f"\nResult: {_quine_mccluskey_pt1(groups)}")
         
         
 class boolean_terms:
@@ -176,4 +266,6 @@ class boolean_terms:
             else: truth_table += "  x\n"
         print(truth_table)
 
-_quine_mccluskey((7,9,12,13,14,15), (4,11))
+s = "A+BC+BC\\"
+f = boolean_expression(s)
+f.SOP_form()
