@@ -1,4 +1,4 @@
-from elec2141 import boolean_expression, boolean_terms
+from boolmods import boolean_expression, boolean_terms
 
 function = "AB + (C+D)\\"
 f = boolean_expression(function)
