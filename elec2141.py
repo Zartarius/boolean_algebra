@@ -1,13 +1,34 @@
 complement = "\\"
 
-def _my_bin(x, num_bits):
+def _my_bin(x: int, num_bits: int) -> str:
+    """
+    Decimal to binary converter
+    x - decimal to convert
+    num_bits - number of bits to include, starting from LSB
+    Returns the binary conversion in the form of a string
+    """
     bits = [(x >> i) & 1 for i in range(num_bits-1, -1, -1)]
     return "".join(str(bit) for bit in bits)
 
-def _flattern_matrix(matrix):
+def _flatten_matrix(matrix: list[list]) -> list:
+    """
+    Given a 2D matrix, returns it with all the rows concatenated into
+    a list
+    matrix - A list of lists
+    Returns a list
+    """
     return [x for row in matrix for x in row]
 
-def _gen_prime_implicants(groups, max_bits):
+def _gen_prime_implicants(groups: dict[int, list], max_bits: int) -> list[tuple]:
+    """
+    Recursive Quine McCluskey algorithmn to find prime implicants. 
+    groups - a dictionary of lists (of tuples), with keys in range 0 to max_bits+1
+    max_bits - the maximum number of bits needed to represent the largest possible
+    minterm, it will be equal to the number of different parameters in the boolean function
+    Returns a list of tuples, where the last element of each tuple is a binary string 
+    representation of the prime implicant, and the remaining elements are the minterms that
+    the prime implicant is composed of
+    """
     new_groups = {group_num: [] for group_num in range(max_bits+1)}
     checked = set()
 
@@ -28,10 +49,10 @@ def _gen_prime_implicants(groups, max_bits):
                     new_groups[group_num].append(new_group)
 
     if not checked:
-        return _flattern_matrix(groups.values())
+        return _flatten_matrix(groups.values())
     
     prime_implicants = []
-    for implicants in _flattern_matrix(groups.values()):
+    for implicants in _flatten_matrix(groups.values()):
         if tuple(sorted(implicants[:-1])) not in checked:
             prime_implicants.append(implicants)
 
@@ -128,20 +149,7 @@ class boolean_expression:
             groups[bin_str.count("1")].append((m, bin_str))
         
         p_implicants = _gen_prime_implicants(groups, max_bits)
-        '''------------------------------------------------'''
-        p_implicants = [g[-1] for g in p_implicants]
-        s = []
-        for p in p_implicants:
-            string = ""
-            for i, j in zip(p, self._params):
-                if i == "1":
-                    string += j
-                elif i == "0":
-                    string += f"{j}\\"
-            s.append(string)
-
-        print(f"Parsed expression: {self._expr}")
-        print(f"Simplified expression: {'+'.join(sorted(si for si in s))}")
+        print(p_implicants)
         
         
 class boolean_terms:
