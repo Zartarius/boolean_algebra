@@ -8,31 +8,32 @@ def _flattern_matrix(matrix):
     return [x for row in matrix for x in row]
 
 def _gen_prime_implicants(groups, max_bits):
-    new_groups = {i: [] for i in range(max_bits+1)}
+    new_groups = {group_num: [] for group_num in range(max_bits+1)}
     checked = set()
 
     for group in range(max_bits):
-        for b1 in groups[group]:
-            for b2 in groups[group+1]:
-                if sum(1 if x != y else 0 for x, y in zip(b1[-1], b2[-1])) != 1:
+        for implicants1 in groups[group]:
+            for implicants2 in groups[group+1]:
+                if sum(1 if x != y else 0 for x, y in zip(implicants1[-1], implicants2[-1])) != 1:
                     continue
-                new_bits = ["-" if x != y else x for x, y in zip(b1[-1], b2[-1])]
+                new_bits = ["-" if x != y else x for x, y in zip(implicants1[-1], implicants2[-1])]
                 new_bits = "".join(bit for bit in new_bits)
-                new_group = tuple(sorted(b1[:-1] + b2[:-1]) + [new_bits])
+                new_group = tuple(sorted(implicants1[:-1] + implicants2[:-1]) + [new_bits])
 
-                checked.add(tuple(sorted(b1[:-1])))
-                checked.add(tuple(sorted(b2[:-1])))
+                checked.add(tuple(sorted(implicants1[:-1])))
+                checked.add(tuple(sorted(implicants2[:-1])))
                 
-                if new_group not in new_groups[new_bits.count("1")]:
-                    new_groups[new_bits.count("1")].append(new_group)
+                group_num = new_bits.count("1")
+                if new_group not in new_groups[group_num]:
+                    new_groups[group_num].append(new_group)
 
     if not checked:
         return _flattern_matrix(groups.values())
     
     prime_implicants = []
-    for minterms in _flattern_matrix(groups.values()):
-        if tuple(sorted(minterms[:-1])) not in checked:
-            prime_implicants.append(minterms)
+    for implicants in _flattern_matrix(groups.values()):
+        if tuple(sorted(implicants[:-1])) not in checked:
+            prime_implicants.append(implicants)
 
     return prime_implicants + _gen_prime_implicants(new_groups, max_bits)
 
