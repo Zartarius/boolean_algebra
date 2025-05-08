@@ -1,20 +1,21 @@
 complement = "\\"
 
-def _my_bin(x, num_bits=4):
+def _my_bin(x, num_bits):
     bits = [(x >> i) & 1 for i in range(num_bits-1, -1, -1)]
     return "".join(str(bit) for bit in bits)
 
-def _gen_prime_implicants(groups):
-    base_case = True
-    new_groups = {i: [] for i in range(max(groups.keys())+1)}
+def _flattern_matrix(matrix):
+    return [x for row in matrix for x in row]
+
+def _gen_prime_implicants(groups, max_bits):
+    new_groups = {i: [] for i in range(max_bits+1)}
     checked = set()
 
-    for group in range(max(groups.keys())):
+    for group in range(max_bits):
         for b1 in groups[group]:
             for b2 in groups[group+1]:
                 if sum(1 if x != y else 0 for x, y in zip(b1[-1], b2[-1])) != 1:
                     continue
-                base_case = False
                 new_bits = ["-" if x != y else x for x, y in zip(b1[-1], b2[-1])]
                 new_bits = "".join(bit for bit in new_bits)
                 new_group = tuple(sorted(b1[:-1] + b2[:-1]) + [new_bits])
@@ -25,16 +26,15 @@ def _gen_prime_implicants(groups):
                 if new_group not in new_groups[new_bits.count("1")]:
                     new_groups[new_bits.count("1")].append(new_group)
 
-    if base_case is True:
-        return sum(groups.values(), start=[])
+    if not checked:
+        return _flattern_matrix(groups.values())
     
-    p_implicants = []
-    for group in groups.values():
-        for minterms in group:
-            if tuple(sorted(minterms[:-1])) not in checked:
-                p_implicants.append(minterms)
+    prime_implicants = []
+    for minterms in _flattern_matrix(groups.values()):
+        if tuple(sorted(minterms[:-1])) not in checked:
+            prime_implicants.append(minterms)
 
-    return p_implicants + _gen_prime_implicants(new_groups)
+    return prime_implicants + _gen_prime_implicants(new_groups, max_bits)
 
 
 class boolean_expression:
@@ -119,13 +119,28 @@ class boolean_expression:
         
     def SOP_form(self):
         minterms = self.min_max_terms()["minterms"]
-        groups = {i: [] for i in range(len(self._params)+1)}
+        max_bits = len(self._params)
+        groups = {i: [] for i in range(max_bits+1)}
 
         for m in minterms:
             bin_str = _my_bin(m, num_bits=len(self._params))
             groups[bin_str.count("1")].append((m, bin_str))
         
-        print(f"\nResult: {_gen_prime_implicants(groups)}")
+        p_implicants = _gen_prime_implicants(groups, max_bits)
+        '''------------------------------------------------'''
+        p_implicants = [g[-1] for g in p_implicants]
+        s = []
+        for p in p_implicants:
+            string = ""
+            for i, j in zip(p, self._params):
+                if i == "1":
+                    string += j
+                elif i == "0":
+                    string += f"{j}\\"
+            s.append(string)
+
+        print(f"Parsed expression: {self._expr}")
+        print(f"Simplified expression: {'+'.join(sorted(si for si in s))}")
         
         
 class boolean_terms:
@@ -177,20 +192,6 @@ class boolean_terms:
             elif bits in self._M: truth_table += "  0\n"
             else: truth_table += "  x\n"
         print(truth_table)
-
-s = "ABC+ABC\\"
-f = boolean_expression(s)
-f.SOP_form()
-
-
-
-
-
-
-
-
-
-
 
 
 
