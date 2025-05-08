@@ -1,18 +1,21 @@
 complement = "\\"
 
-def _my_bin(x, num_bits=8):
+def _my_bin(x, num_bits=4):
     bits = [(x >> i) & 1 for i in range(num_bits-1, -1, -1)]
     return "".join(str(bit) for bit in bits)
 
-def _quine_mccluskey(m):
+def _quine_mccluskey(m, dcs):
     groups = {}
-    for minterm in m:
-        num_1_bits = _my_bin(minterm).count("1")
-        if num_1_bits in groups.keys(): groups[num_1_bits].append(minterm)
-        else: groups[num_1_bits] = [minterm]
-    
-    pairs = []
-    for num_1_bits in groups.keys():
+    for term in (m + dcs):
+        num_1_bits = _my_bin(term).count("1")
+        if num_1_bits in groups.keys(): groups[num_1_bits].append(term)
+        else: groups[num_1_bits] = [term]
+
+    p_implicants = []
+    paired_groups = {}
+    group_num = 0
+    for num_1_bits in sorted(groups.keys()):
+        print(groups[num_1_bits])
         if (num_1_bits + 1) not in groups.keys():
             continue
         for minterm1 in groups[num_1_bits]:
@@ -21,7 +24,23 @@ def _quine_mccluskey(m):
                     continue
                 bits = ["_" if x != y else str(x) for x, y in zip(_my_bin(minterm1), _my_bin(minterm2))]
                 bits = "".join(char for char in bits)
-                pairs.append((minterm1, minterm2, bits))
+
+                if group_num in paired_groups.keys(): paired_groups[group_num].append((minterm1, minterm2, bits))
+                else: paired_groups[group_num] = [(minterm1, minterm2, bits)]
+        group_num += 1
+
+    for group_num in range(len(paired_groups.keys())-1):
+        for m11, m12, bits1 in paired_groups[group_num]:
+            for m21, m22, bits2 in paired_groups[group_num + 1]:
+                if bits1.find("_") != bits2.find("_"):
+                    continue
+                new_bits = ["_" if x != y else x for x, y in zip(bits1, bits2)]
+                new_bits = "".join(char for char in new_bits)
+                p_implicants.append((m11, m12, m21, m22, new_bits))
+
+    print(p_implicants)
+
+
 
 class boolean_expression:
     global complement
@@ -157,4 +176,4 @@ class boolean_terms:
             else: truth_table += "  x\n"
         print(truth_table)
 
-_quine_mccluskey((1,2,3))
+_quine_mccluskey((7,9,12,13,14,15), (4,11))
