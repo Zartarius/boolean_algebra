@@ -35,7 +35,8 @@ def _gen_prime_implicants(groups: dict[int, list], max_bits: int) -> list[tuple]
     for group in range(max_bits):
         for implicants1 in groups[group]:
             for implicants2 in groups[group+1]:
-                if sum(1 if x != y else 0 for x, y in zip(implicants1[-1], implicants2[-1])) != 1:
+                diff = [(x, y) for x, y in zip(implicants1[-1], implicants2[-1]) if x != y]
+                if len(diff) != 1 or set(diff[0]) != {"0", "1"}:
                     continue
                 new_bits = ["-" if x != y else x for x, y in zip(implicants1[-1], implicants2[-1])]
                 new_bits = "".join(bit for bit in new_bits)
@@ -189,8 +190,6 @@ class boolean_expression:
             groups[bin_str.count("1")].append((minterm, bin_str))
         
         p_implicants = _gen_prime_implicants(groups, max_bits)
-        if len(p_implicants) == 0:
-            return "0"
         implicant_chart = {minterm: [] for minterm in minterms}
 
         for minterm in minterms:
@@ -199,7 +198,22 @@ class boolean_expression:
                     implicant_chart[minterm].append(p_implicant)
 
         ess_implicants = _gen_ess_implicants(implicant_chart)
-        print(ess_implicants)
+
+        if len(ess_implicants) == 0:
+            return "0"
+        elif "1" not in ess_implicants[0] and "0" not in ess_implicants[0]:
+            return "1"
+        
+        simplified_SOP = [
+            "".join(
+                param if bit == "1" else param + complement
+                for bit, param in zip(ess_implicant, self._params)
+                if bit != "-"
+            )
+            for ess_implicant in ess_implicants
+        ]
+        
+        return "+".join(term for term in simplified_SOP)
         
 
 class boolean_terms:
