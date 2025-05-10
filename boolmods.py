@@ -1,34 +1,13 @@
 complement = "\\"
 
-def _my_bin(x: int, num_bits: int) -> str:
-    """
-    Decimal to binary converter
-    x - decimal to convert
-    num_bits - number of bits to include, starting from LSB
-    Returns the binary conversion in the form of a string
-    """
+def _my_bin(x, num_bits):
     bits = [(x >> i) & 1 for i in range(num_bits-1, -1, -1)]
     return "".join(str(bit) for bit in bits)
 
-def _flatten_matrix(matrix: list[list]) -> list:
-    """
-    Given a 2D matrix, returns it with all the rows concatenated into
-    a list
-    matrix - A list of lists
-    Returns a list
-    """
+def _flatten_matrix(matrix):
     return [x for row in matrix for x in row]
 
-def _gen_prime_implicants(groups: dict[int, list], max_bits: int) -> list[tuple]:
-    """
-    Recursive Quine McCluskey algorithmn to find prime implicants. 
-    groups - a dictionary of lists (of tuples), with keys in range 0 to max_bits+1
-    max_bits - the maximum number of bits needed to represent the largest possible
-    minterm, it will be equal to the number of different parameters in the boolean function
-    Returns a list of tuples, where the last element of each tuple is a binary string 
-    representation of the prime implicant, and the remaining elements are the minterms that
-    the prime implicant is composed of
-    """
+def _gen_prime_implicants(groups, max_bits):
     new_groups = {group_num: [] for group_num in range(max_bits+1)}
     checked = set()
 
