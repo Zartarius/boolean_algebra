@@ -62,7 +62,7 @@ def _gen_prime_implicants(groups: dict[int, list], max_bits: int) -> list[tuple]
 def _gen_ess_implicants(implicant_chart):
     ess_implicants = []
 
-    if sum(len(row) for row in implicant_chart.values()) == 0:
+    if all(len(row) == 0 for row in implicant_chart.values()):
         return ess_implicants
 
     for minterm in list(implicant_chart.keys()):
@@ -82,10 +82,10 @@ def _gen_ess_implicants(implicant_chart):
             elif set(row2) >= set(row1):
                 implicant_chart.pop(rem_minterms[j], None)
 
-    colwise_implicant_chart = {p_implicant: [] for p_implicant in _flatten_matrix(implicant_chart.values())}
-    for minterm in implicant_chart.keys():
-        for p_implicant in implicant_chart[minterm]:
-            colwise_implicant_chart[p_implicant].append(minterm)
+    colwise_implicant_chart = {prime_implicant: [] for prime_implicant in _flatten_matrix(implicant_chart.values())}
+    for minterm, prime_implicants in implicant_chart.items():
+        for prime_implicant in prime_implicants:
+            colwise_implicant_chart[prime_implicant].append(minterm)
 
     rem_implicants = list(colwise_implicant_chart.keys())
     for i in range(len(rem_implicants)):
@@ -93,10 +93,14 @@ def _gen_ess_implicants(implicant_chart):
         for j in range(i+1, len(rem_implicants)):
             col2 = colwise_implicant_chart[rem_implicants[j]]
             if set(col1) >= set(col2):
-                implicant_chart = {key: [m for m in values if m != rem_implicants[j]] for key, values in implicant_chart.items()}
+                for minterm, prime_implicants in implicant_chart.items():
+                    if rem_implicants[j] in prime_implicants:
+                        implicant_chart[minterm].remove(rem_implicants[j])
             elif set(col2) >= set(col1):
-                implicant_chart = {key: [m for m in values if m != rem_implicants[i]] for key, values in implicant_chart.items()}
-
+                for minterm, prime_implicants in implicant_chart.items():
+                    if rem_implicants[i] in prime_implicants:
+                        implicant_chart[minterm].remove(rem_implicants[i])
+               
     return ess_implicants  + _gen_ess_implicants(implicant_chart)
 
 
@@ -206,8 +210,7 @@ class boolean_expression:
         simplified_SOP = [
             "".join(
                 param if bit == "1" else param + complement
-                for bit, param in zip(ess_implicant, self._params)
-                if bit != "-"
+                for bit, param in zip(ess_implicant, self._params) if bit != "-"
             )
             for ess_implicant in ess_implicants
         ]
