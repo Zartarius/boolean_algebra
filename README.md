@@ -1,2 +1,9 @@
 # Boolean Algebra modules
 Modules to help with problems relating to boolean algebra and digital circuit design (calculating Gate Input Cost, boolean simplification, printing truth tables, SOP/POS form, implicants etc). Currently in progress. Requires 0 external libraries or packages. 
+
+**Boolean expression**
+- initialisation: Takes in a boolean equation in string form, where '+' is used for OR, placing literals/terms next to each other is used to AND them, and a character of the user's choice can be used to complement a literal or term (i.e. A+(BC)', where ' is used to complement). Whitespace will automatically be removed. 
+- evaluate: Evaluates the expression, inputs must be given in as a single string in the form "A=1,B=0,C=1..."
+- truth_table: Prints the truth table for the expression
+- min_max_terms: Returns the min and max terms of the function
+- SOP_form: Returns the *simplified* Sum of Products (SOP) form of the expression, as a string. 
