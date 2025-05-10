@@ -58,6 +58,46 @@ def _gen_prime_implicants(groups: dict[int, list], max_bits: int) -> list[tuple]
 
     return prime_implicants + _gen_prime_implicants(new_groups, max_bits)
 
+def _gen_ess_implicants(implicant_chart):
+    ess_implicants = []
+
+    if sum(len(row) for row in implicant_chart.values()) == 0:
+        return ess_implicants
+
+    for minterm in list(implicant_chart.keys()):
+        if minterm in implicant_chart.keys() and len(implicant_chart[minterm]) == 1:
+            ess_implicant = implicant_chart[minterm][0]
+            ess_implicants.append(ess_implicant[-1])
+            for covered_minterm in ess_implicant[:-1]:
+                implicant_chart.pop(covered_minterm, None)
+    
+    rem_minterms = list(implicant_chart.keys())
+    for i in range(len(rem_minterms)):
+        row1 = implicant_chart.get(rem_minterms[i], [])
+        for j in range(i+1, len(rem_minterms)):
+            row2 = implicant_chart.get(rem_minterms[j], [])
+            if set(row1) >= set(row2):
+                implicant_chart.pop(rem_minterms[i], None)
+            elif set(row2) >= set(row1):
+                implicant_chart.pop(rem_minterms[j], None)
+
+    colwise_implicant_chart = {p_implicant: [] for p_implicant in _flatten_matrix(implicant_chart.values())}
+    for minterm in implicant_chart.keys():
+        for p_implicant in implicant_chart[minterm]:
+            colwise_implicant_chart[p_implicant].append(minterm)
+
+    rem_implicants = list(colwise_implicant_chart.keys())
+    for i in range(len(rem_implicants)):
+        col1 = colwise_implicant_chart[rem_implicants[i]]
+        for j in range(i+1, len(rem_implicants)):
+            col2 = colwise_implicant_chart[rem_implicants[j]]
+            if set(col1) >= set(col2):
+                implicant_chart = {key: [m for m in values if m != rem_implicants[j]] for key, values in implicant_chart.items()}
+            elif set(col2) >= set(col1):
+                implicant_chart = {key: [m for m in values if m != rem_implicants[i]] for key, values in implicant_chart.items()}
+
+    return ess_implicants  + _gen_ess_implicants(implicant_chart)
+
 
 class boolean_expression:
     global complement
@@ -142,16 +182,26 @@ class boolean_expression:
     def SOP_form(self):
         minterms = self.min_max_terms()["minterms"]
         max_bits = len(self._params)
-        groups = {i: [] for i in range(max_bits+1)}
+        groups = {group_num: [] for group_num in range(max_bits+1)}
 
-        for m in minterms:
-            bin_str = _my_bin(m, num_bits=len(self._params))
-            groups[bin_str.count("1")].append((m, bin_str))
+        for minterm in minterms:
+            bin_str = _my_bin(minterm, num_bits=max_bits)
+            groups[bin_str.count("1")].append((minterm, bin_str))
         
         p_implicants = _gen_prime_implicants(groups, max_bits)
-        print(p_implicants)
+        if len(p_implicants) == 0:
+            return "0"
+        implicant_chart = {minterm: [] for minterm in minterms}
+
+        for minterm in minterms:
+            for p_implicant in p_implicants:
+                if minterm in p_implicant[:-1]:
+                    implicant_chart[minterm].append(p_implicant)
+
+        ess_implicants = _gen_ess_implicants(implicant_chart)
+        print(ess_implicants)
         
-        
+
 class boolean_terms:
     global complement
     
@@ -199,5 +249,5 @@ class boolean_terms:
                 truth_table += f" {bit} |"
             if bits in self._m: truth_table += "  1\n"
             elif bits in self._M: truth_table += "  0\n"
-            else: truth_table += "  x\n"
+            else: truth_table += "  -\n"
         print(truth_table)
