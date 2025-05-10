@@ -122,7 +122,7 @@ class boolean_expression:
             i = len(expression) - expression[::-1].find(complement) - 2
 
             temp = list(expression)
-            temp.pop(i + 1)
+            # temp.pop(i + 1)
             expression = "".join(str(char) for char in temp)
             bracket_count = int(expression[i] == ")")
             
@@ -132,10 +132,10 @@ class boolean_expression:
                 elif expression[j] == "(": bracket_count -= 1
                 j -= 1
                 
-            expression = f"{expression[:j+1]}(not {expression[j+1:i+1]}){expression[i+1:]}"
+            expression = f"{expression[:j+1]}(not {expression[j+1:i+1]}){expression[i+2:]}"
             
         self._expr = expression
-        
+        print(self._expr)
         temp = expression.replace("and", "").replace("or", "").replace("not", "")
         params = []
         for char in temp:
