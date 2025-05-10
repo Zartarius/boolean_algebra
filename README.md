@@ -1,5 +1,6 @@
 # Boolean Algebra modules
-Modules to help with problems relating to boolean algebra and digital circuit design (calculating Gate Input Cost, boolean simplification, printing truth tables, SOP/POS form, implicants etc). Currently in progress. Requires 0 external libraries or packages. 
+Modules to help with problems relating to boolean algebra and digital circuit design (calculating Gate Input Cost, boolean simplification, printing truth tables, SOP/POS form, implicants etc). Currently in progress. 
+Requires 0 external libraries or packages. 
 
 **Boolean expression**
 - `__init__`: Takes in a boolean equation in string form, where '+' is used for OR, placing literals/terms next to each other is used to AND them, and a character of the user's choice can be used to complement a literal or term (i.e. A+(BC)', where ' is used to complement). Whitespace will automatically be removed. The equation can have an arbitrary number of variables. Function parameters must be a single alphabetical character, lowercase and uppercase are both fine. Functionality to accomodate for multi-character parameters will be added later. 
