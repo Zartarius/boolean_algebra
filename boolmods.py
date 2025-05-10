@@ -192,10 +192,9 @@ class boolean_expression:
         p_implicants = _gen_prime_implicants(groups, max_bits)
         implicant_chart = {minterm: [] for minterm in minterms}
 
-        for minterm in minterms:
-            for p_implicant in p_implicants:
-                if minterm in p_implicant[:-1]:
-                    implicant_chart[minterm].append(p_implicant)
+        for p_implicant in p_implicants:
+            for minterm in p_implicant[:-1]:
+                implicant_chart[minterm].append(p_implicant) 
 
         ess_implicants = _gen_ess_implicants(implicant_chart)
 
