@@ -14,8 +14,7 @@ def _gen_prime_implicants(groups, max_bits):
     for group in range(max_bits):
         for implicants1 in groups[group]:
             for implicants2 in groups[group+1]:
-                diff = [(x, y) for x, y in zip(implicants1[-1], implicants2[-1]) if x != y]
-                if len(diff) != 1 or set(diff[0]) != {"0", "1"}:
+                if [(x, y) for x, y in zip(implicants1[-1], implicants2[-1]) if x != y] != [("0", "1")]: 
                     continue
                 new_bits = ["-" if x != y else x for x, y in zip(implicants1[-1], implicants2[-1])]
                 new_bits = "".join(bit for bit in new_bits)
@@ -114,7 +113,7 @@ class boolean_expression:
             expression = f"{expression[:j+1]}(not {expression[j+1:i+1]}){expression[i+2:]}"
             
         self._expr = expression
-        print(self._expr)
+
         temp = expression.replace("and", "").replace("or", "").replace("not", "")
         params = []
         for char in temp:
@@ -145,7 +144,7 @@ class boolean_expression:
                 truth_table += f" {bit} |"
                 expression = expression.replace(self._params[i], str(bit))
             truth_table += f"  {int(eval(expression))}\n"
-            
+
         print(truth_table)
     
     def min_max_terms(self):
