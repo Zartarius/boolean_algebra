@@ -4,9 +4,14 @@ Modules to help with problems relating to boolean algebra and digital circuit de
 Requires 0 external libraries or packages. 
 
 **Boolean expression**
-- `__init__`: Takes in a boolean equation in string form, where '+' is used for OR, placing literals/terms next to each other is used to AND them, and a character of the user's choice can be used to complement a literal or term (i.e. A+(BC)', where ' is used to complement). Whitespace will automatically be removed. The equation can have an arbitrary number of variables. Function parameters must be a single alphabetical character, lowercase and uppercase are both fine. Functionality to accomodate for multi-character parameters will be added later. 
-- `evaluate`: Evaluates the expression, inputs must be given in as a single string in the form "A=1,B=0,C=1...". Whitespace will automatically be removed. 
+- `__init__`: Takes in a boolean equation in string form, where '+' is used for OR, placing literals/terms next to each other is used to AND them, and a character of the user's choice can be used to complement a literal or term (i.e. A+(BC)', where ' is used to complement). The equation can have an arbitrary number of variables. Function parameters must be a single alphabetical character, lowercase and uppercase are both fine.  
+- `evaluate`: Evaluates the expression, inputs must be given in as a single string in the form "A=1,B=0,C=1...".
 - `truth_table`: Prints the truth table for the expression.
 - `min_max_terms`: Returns the min and max terms of the function.
-- `SOP_form`: Returns the *simplified* Sum of Products (SOP) form of the expression, as a string. Significantly slow runtimes for equations with more than 10 different parameters.
-- `POS_form`: Returns the *simplified* Product of Sums (POS) form of the expression, as a string. Significantly slow runtimes for equations with more than 10 different parameters.
+- `SOP_form`: Returns the *simplified* Sum of Products (SOP) form of the expression, as a string. 
+- `POS_form`: Returns the *simplified* Product of Sums (POS) form of the expression, as a string. 
+
+**Additional notes**
+- Functionality to accomodate for multi-character parameters will be added later.
+- `SOP_form` and `POS_form` have significantly slower runtimes for equations with more than 9-10 different parameters, due to the exponential time complexity of the Quine McCluskey algorithmn.
+- Whitespace will automatically be removed from all input strings.
