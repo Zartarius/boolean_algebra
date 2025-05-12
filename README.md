@@ -6,7 +6,7 @@ Requires 0 external libraries or packages.
 
 
 
-**`boolean_expression`**
+**boolean_expression**
 - `__init__`: Takes in a boolean equation in string form, where '+' is used for OR, placing literals/terms next to each other is used to AND them, and a character of the user's choice can be used to complement a literal or term (i.e. A+(BC)', where ' is used to complement). The equation can have an arbitrary number of variables. Function parameters must be a single alphabetical character, lowercase and uppercase are both fine.  
 - `evaluate`: Evaluates the expression, inputs must be given in as a single string in the form "A=1,B=0,C=1...".
 - `truth_table`: Prints the truth table for the expression.
@@ -16,7 +16,7 @@ Requires 0 external libraries or packages.
 
 
 
-**`boolean_terms`**
+**boolean_terms**
 (To be added later)
 
 
