@@ -13,7 +13,8 @@ Requires 0 external libraries or packages.
 - `SOP_form`: Returns the *simplified* Sum of Products (SOP) form of the expression, as a string. 
 - `POS_form`: Returns the *simplified* Product of Sums (POS) form of the expression, as a string.
 
-**Boolean terms
+**`boolean_terms`**
+(To be added later)
 
 **Additional notes**
 - Functionality to accomodate for multi-character parameters will be added later.
