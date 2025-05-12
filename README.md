@@ -1,5 +1,6 @@
-# Boolean Algebra modules
-Modules to help with problems relating to boolean algebra and digital circuit design (calculating Gate Input Cost, boolean simplification, printing truth tables, SOP/POS form, implicants etc). Currently in progress. 
+# Boolean Algebra modules (Work in progress)
+Modules to help with problems relating to boolean algebra and digital circuit design (calculating Gate Input Cost, boolean simplification, printing truth tables, SOP/POS form, implicants etc). 
+
 Requires 0 external libraries or packages. 
 
 **Boolean expression**
