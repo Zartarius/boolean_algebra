@@ -120,6 +120,8 @@ class boolean_expression:
             if char not in " ()&|~10" and char not in params:
                 params.append(char)
         self._params = tuple(sorted(params))
+        self._m = None
+        self._M = None
         
     def evaluate(self, inputs):
         inputs = inputs.replace(" ", "")
@@ -148,6 +150,9 @@ class boolean_expression:
         print(truth_table)
     
     def min_max_terms(self):
+        if self._m != None and self._M != None:
+            return {"minterms": self._m, "maxterms": self._M}
+        
         minterms = []
         maxterms = []
         
@@ -159,8 +164,10 @@ class boolean_expression:
                 
             if int(eval(expression)) == 0: maxterms.append(bits)
             else: minterms.append(bits)
-            
-        return {"minterms": tuple(minterms), "maxterms": tuple(maxterms)}
+
+        self._m = tuple(minterms)
+        self._M = tuple(maxterms)
+        return {"minterms": self._m, "maxterms": self._M}
         
     def SOP_form(self):
         minterms = self.min_max_terms()["minterms"]
@@ -195,6 +202,38 @@ class boolean_expression:
         
         return "+".join(term for term in simplified_SOP)
         
+    def POS_form(self):
+        maxterms = self.min_max_terms()["maxterms"]
+        max_bits = len(self._params)
+        groups = {group_num: [] for group_num in range(max_bits+1)}
+
+        for maxterm in maxterms:
+            bin_str = _my_bin(maxterm, num_bits=max_bits)
+            groups[bin_str.count("1")].append((maxterm, bin_str))
+        
+        p_implicants = _gen_prime_implicants(groups, max_bits)
+        implicant_chart = {maxterm: [] for maxterm in maxterms}
+
+        for p_implicant in p_implicants:
+            for maxterm in p_implicant[:-1]:
+                implicant_chart[maxterm].append(p_implicant) 
+
+        ess_implicants = _gen_ess_implicants(implicant_chart)
+
+        if len(ess_implicants) == 0:
+            return "1"
+        elif "1" not in ess_implicants[0] and "0" not in ess_implicants[0]:
+            return "0"
+        
+        simplified_POS = [
+            f"({"+".join(
+                param if bit == "0" else param + complement
+                for bit, param in zip(ess_implicant, self._params) if bit != "-"
+            )})"
+            for ess_implicant in ess_implicants
+        ]
+        
+        return "".join(term for term in simplified_POS)
 
 class boolean_terms:
     global complement
