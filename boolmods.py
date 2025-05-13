@@ -1,4 +1,4 @@
-complement = "\\"
+COMPLEMENT = "\\"
 
 def _my_bin(x, num_bits):
     bits = [(x >> i) & 1 for i in range(num_bits-1, -1, -1)]
@@ -83,9 +83,13 @@ def _gen_ess_implicants(implicant_chart):
 
 
 class boolean_expression:
-    global complement
+    global COMPLEMENT
         
-    def __init__(self, expression, complement=complement):
+    def __init__(self, expression, complement=COMPLEMENT):
+        self._m = None
+        self._M = None
+        self._cmpl = complement
+
         expression = expression.replace(" ", "")
         temp = ""
         for i in range(len(expression)):
@@ -120,8 +124,6 @@ class boolean_expression:
             if char not in " ()&|~10" and char not in params:
                 params.append(char)
         self._params = tuple(sorted(params))
-        self._m = None
-        self._M = None
         
     def evaluate(self, inputs):
         inputs = inputs.replace(" ", "")
@@ -150,7 +152,7 @@ class boolean_expression:
         print(truth_table)
     
     def min_max_terms(self):
-        if self._m != None and self._M != None:
+        if self._m is not None and self._M is not None:
             return {"minterms": self._m, "maxterms": self._M}
         
         minterms = []
@@ -194,7 +196,7 @@ class boolean_expression:
         
         simplified_SOP = [
             "".join(
-                param if bit == "1" else param + complement
+                param if bit == "1" else param + self._cmpl
                 for bit, param in zip(ess_implicant, self._params) if bit != "-"
             )
             for ess_implicant in ess_implicants
@@ -227,7 +229,7 @@ class boolean_expression:
         
         simplified_POS = [
             f"({"+".join(
-                param if bit == "0" else param + complement
+                param if bit == "0" else param + self._cmpl
                 for bit, param in zip(ess_implicant, self._params) if bit != "-"
             )})"
             for ess_implicant in ess_implicants
@@ -238,7 +240,7 @@ class boolean_expression:
 class boolean_terms:
     global complement
     
-    def __init__(self, params, minterms=(), maxterms=(), dcs=(), complement=complement):
+    def __init__(self, params, minterms=(), maxterms=(), dcs=(), complement=COMPLEMENT):
         self._params = params
         self._dcs = dcs
         self._cmpl = complement
