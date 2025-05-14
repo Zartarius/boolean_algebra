@@ -1,4 +1,4 @@
-COMPLEMENT = "\\"
+COMPLEMENT = "'"
 
 def set_complement(complement):
     global COMPLEMENT
@@ -92,7 +92,7 @@ class boolean_expression:
         if complement is None:
             complement = COMPLEMENT
         self._cmpl = complement
-        
+
         self._m = None
         self._M = None
 
@@ -127,7 +127,7 @@ class boolean_expression:
         temp = expression.replace("and", "").replace("or", "").replace("not", "")
         params = []
         for char in temp:
-            if char not in " ()&|~10" and char not in params:
+            if char not in " ()10" and char not in params:
                 params.append(char)
         self._params = tuple(sorted(params))
         
@@ -207,7 +207,8 @@ class boolean_expression:
             )
             for ess_implicant in ess_implicants
         ]
-        
+        sorting_key = lambda term: sum(ord(char) for char in term if char is not self._cmpl)
+        simplified_SOP = sorted(simplified_SOP, key=sorting_key)
         return "+".join(term for term in simplified_SOP)
         
     def POS_form(self):
@@ -240,7 +241,8 @@ class boolean_expression:
             )})"
             for ess_implicant in ess_implicants
         ]
-        
+        sorting_key = lambda term: sum(ord(char) for char in term if char not in f"()+{self._cmpl}")
+        simplified_POS = sorted(simplified_POS, key=sorting_key)
         return "".join(term for term in simplified_POS)
 
 class boolean_terms:
