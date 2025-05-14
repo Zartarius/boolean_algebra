@@ -1,5 +1,6 @@
 import boolmods
 
+boolmods.set_complement("\\")
 expression = "AB + (C+D)\\"
 f = boolmods.boolean_expression(expression)
 min_max_terms = f.min_max_terms()
