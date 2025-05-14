@@ -1,5 +1,9 @@
 COMPLEMENT = "\\"
 
+def set_complement(complement):
+    global COMPLEMENT
+    COMPLEMENT = complement
+
 def _my_bin(x, num_bits):
     bits = [(x >> i) & 1 for i in range(num_bits-1, -1, -1)]
     return "".join(str(bit) for bit in bits)
@@ -82,13 +86,15 @@ def _gen_ess_implicants(implicant_chart):
     return ess_implicants  + _gen_ess_implicants(implicant_chart)
 
 
-class boolean_expression:
-    global COMPLEMENT
+class boolean_expression:     
+    def __init__(self, expression, complement=None):
+        global COMPLEMENT
+        if complement is None:
+            complement = COMPLEMENT
+        self._cmpl = complement
         
-    def __init__(self, expression, complement=COMPLEMENT):
         self._m = None
         self._M = None
-        self._cmpl = complement
 
         expression = expression.replace(" ", "")
         temp = ""
@@ -238,7 +244,7 @@ class boolean_expression:
         return "".join(term for term in simplified_POS)
 
 class boolean_terms:
-    global complement
+    global COMPLEMENT
     
     def __init__(self, params, minterms=(), maxterms=(), dcs=(), complement=COMPLEMENT):
         self._params = params
