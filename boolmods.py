@@ -41,35 +41,39 @@ def _gen_prime_implicants(groups, max_bits):
 
     return prime_implicants + _gen_prime_implicants(new_groups, max_bits)
 
+
 def _gen_ess_implicants(implicant_chart):
-    ess_implicants = []
-
     if all(len(row) == 0 for row in implicant_chart.values()):
-        return ess_implicants
+        return []
 
-    for minterm in list(implicant_chart.keys()):
+    ess_implicants = []
+    for minterm in tuple(implicant_chart.keys()):
         if minterm in implicant_chart.keys() and len(implicant_chart[minterm]) == 1:
             ess_implicant = implicant_chart[minterm][0]
             ess_implicants.append(ess_implicant[-1])
             for covered_minterm in ess_implicant[:-1]:
                 implicant_chart.pop(covered_minterm, None)
     
-    rem_minterms = list(implicant_chart.keys())
+    rem_minterms = tuple(implicant_chart.keys())
     for i in range(len(rem_minterms)):
-        row1 = implicant_chart.get(rem_minterms[i], [])
+        if rem_minterms[i] not in implicant_chart.keys():
+            continue
+        row1 = implicant_chart[rem_minterms[i]]
         for j in range(i+1, len(rem_minterms)):
-            row2 = implicant_chart.get(rem_minterms[j], [])
+            if rem_minterms[j] not in implicant_chart.keys():
+                continue
+            row2 = implicant_chart[rem_minterms[j]]
             if set(row1) >= set(row2):
-                implicant_chart.pop(rem_minterms[i], None)
+                implicant_chart.pop(rem_minterms[i])
             elif set(row2) >= set(row1):
-                implicant_chart.pop(rem_minterms[j], None)
+                implicant_chart.pop(rem_minterms[j])
 
     colwise_implicant_chart = {prime_implicant: [] for prime_implicant in _flatten_matrix(implicant_chart.values())}
     for minterm, prime_implicants in implicant_chart.items():
         for prime_implicant in prime_implicants:
             colwise_implicant_chart[prime_implicant].append(minterm)
 
-    rem_implicants = list(colwise_implicant_chart.keys())
+    rem_implicants = tuple(colwise_implicant_chart.keys())
     for i in range(len(rem_implicants)):
         col1 = colwise_implicant_chart[rem_implicants[i]]
         for j in range(i+1, len(rem_implicants)):
@@ -95,6 +99,7 @@ class boolean_expression:
 
         self._m = None
         self._M = None
+        self._p_impl = None
 
         expression = expression.replace(" ", "")
         temp = ""
@@ -125,11 +130,8 @@ class boolean_expression:
         self._expr = expression
 
         temp = expression.replace("and", "").replace("or", "").replace("not", "")
-        params = []
-        for char in temp:
-            if char not in " ()10" and char not in params:
-                params.append(char)
-        self._params = tuple(sorted(params))
+        params = set([char for char in temp if char not in " ()10"])
+        self._params = tuple(sorted(list(params)))
         
     def evaluate(self, inputs):
         inputs = inputs.replace(" ", "")
@@ -176,7 +178,31 @@ class boolean_expression:
         self._m = tuple(minterms)
         self._M = tuple(maxterms)
         return {"minterms": self._m, "maxterms": self._M}
-        
+    
+    def prime_implicants(self):
+        if self._p_impl is None:
+            minterms = self.min_max_terms()["minterms"]
+            max_bits = len(self._params)
+            groups = {group_num: [] for group_num in range(max_bits+1)}
+
+            for minterm in minterms:
+                bin_str = _my_bin(minterm, num_bits=max_bits)
+                groups[bin_str.count("1")].append((minterm, bin_str))
+            self._p_impl = _gen_prime_implicants(groups, max_bits)
+
+        p_implicants = [p_implicant[-1] for p_implicant in self._p_impl]
+        p_implicants = [
+            "".join(
+                param if bit == "1" else param + self._cmpl
+                for bit, param in zip(p_implicant, self._params) if bit != "-"
+            )
+            for p_implicant in p_implicants
+        ]
+        sorting_key = lambda term: sum(ord(char) for char in term if char is not self._cmpl)
+        p_implicants = sorted(p_implicants, key=sorting_key)
+
+        return ", ".join(p_implicant for p_implicant in p_implicants)
+
     def SOP_form(self):
         minterms = self.min_max_terms()["minterms"]
         max_bits = len(self._params)
@@ -187,6 +213,9 @@ class boolean_expression:
             groups[bin_str.count("1")].append((minterm, bin_str))
         
         p_implicants = _gen_prime_implicants(groups, max_bits)
+        if self._p_impl is None:
+            self._p_impl = p_implicants
+
         implicant_chart = {minterm: [] for minterm in minterms}
 
         for p_implicant in p_implicants:
@@ -221,6 +250,7 @@ class boolean_expression:
             groups[bin_str.count("1")].append((maxterm, bin_str))
         
         p_implicants = _gen_prime_implicants(groups, max_bits)
+
         implicant_chart = {maxterm: [] for maxterm in maxterms}
 
         for p_implicant in p_implicants:
@@ -244,6 +274,11 @@ class boolean_expression:
         sorting_key = lambda term: sum(ord(char) for char in term if char not in f"()+{self._cmpl}")
         simplified_POS = sorted(simplified_POS, key=sorting_key)
         return "".join(term for term in simplified_POS)
+    
+    def GIC(self):
+        literals = sum(1 for char in self._expr if char in self._params)
+        unique_complements = set()
+        
 
 class boolean_terms:
     global COMPLEMENT
