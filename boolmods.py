@@ -276,9 +276,28 @@ class boolean_expression:
         return "".join(term for term in simplified_POS)
     
     def GIC(self):
-        literals = sum(1 for char in self._expr if char in self._params)
+        literals = sum(1 for char in self._expr if char in self._params or char in "01")
+
         unique_complements = set()
-        
+        expression = self._expr
+        while "not" in expression:
+            for i in range(len(expression)-3):
+                if expression[i+1:i+4] == "not":
+                    j = i 
+                    bracket_count = 1
+                    while bracket_count > 0:
+                        j += 1
+                        if expression[j] == ")": bracket_count -= 1
+                        elif expression[j] == "(": bracket_count += 1
+                    unique_complements.add(expression[i:j+1])
+                    expression = (expression[:i+1] + expression[i+4:])
+        unique_complements = len(unique_complements)
+
+        terms = 0
+
+        return literals + unique_complements + terms
+                
+
 
 class boolean_terms:
     global COMPLEMENT
