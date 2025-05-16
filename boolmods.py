@@ -89,6 +89,54 @@ def _gen_ess_implicants(implicant_chart):
                
     return ess_implicants  + _gen_ess_implicants(implicant_chart)
 
+'''
+def _gen_all_ess_implicants(implicant_chart):
+    if all(len(row) == 0 for row in implicant_chart.values()):
+        return []
+
+    ess_implicants = []
+    for minterm in tuple(implicant_chart.keys()):
+        if minterm in implicant_chart.keys() and len(implicant_chart[minterm]) == 1:
+            ess_implicant = implicant_chart[minterm][0]
+            ess_implicants.append(ess_implicant[-1])
+            for covered_minterm in ess_implicant[:-1]:
+                implicant_chart.pop(covered_minterm, None)
+    
+    rem_minterms = tuple(implicant_chart.keys())
+    for i in range(len(rem_minterms)):
+        if rem_minterms[i] not in implicant_chart.keys():
+            continue
+        row1 = implicant_chart[rem_minterms[i]]
+        for j in range(i+1, len(rem_minterms)):
+            if rem_minterms[j] not in implicant_chart.keys():
+                continue
+            row2 = implicant_chart[rem_minterms[j]]
+            if set(row1) >= set(row2):
+                implicant_chart.pop(rem_minterms[i])
+            elif set(row2) >= set(row1):
+                implicant_chart.pop(rem_minterms[j])
+
+    colwise_implicant_chart = {prime_implicant: [] for prime_implicant in _flatten_matrix(implicant_chart.values())}
+    for minterm, prime_implicants in implicant_chart.items():
+        for prime_implicant in prime_implicants:
+            colwise_implicant_chart[prime_implicant].append(minterm)
+
+    rem_implicants = tuple(colwise_implicant_chart.keys())
+    for i in range(len(rem_implicants)):
+        col1 = colwise_implicant_chart[rem_implicants[i]]
+        for j in range(i+1, len(rem_implicants)):
+            col2 = colwise_implicant_chart[rem_implicants[j]]
+            if set(col1) >= set(col2):
+                for minterm, prime_implicants in implicant_chart.items():
+                    if rem_implicants[j] in prime_implicants:
+                        implicant_chart[minterm].remove(rem_implicants[j])
+            elif set(col2) >= set(col1):
+                for minterm, prime_implicants in implicant_chart.items():
+                    if rem_implicants[i] in prime_implicants:
+                        implicant_chart[minterm].remove(rem_implicants[i])
+               
+    return ess_implicants  + _gen_ess_implicants(implicant_chart)
+'''
 
 class boolean_expression:     
     def __init__(self, expression, complement=None):
@@ -281,7 +329,7 @@ class boolean_expression:
         unique_complements = set()
         expression = self._expr
         while "not" in expression:
-            for i in range(len(expression)-3):
+            for i in range(len(expression)-4):
                 if expression[i+1:i+4] == "not":
                     j = i 
                     bracket_count = 1
@@ -293,7 +341,16 @@ class boolean_expression:
                     expression = (expression[:i+1] + expression[i+4:])
         unique_complements = len(unique_complements)
 
+        for substr in (self._params + ("not","(", ")")):
+            expression = expression.replace(substr, "")
+        expression = [gate for gate in expression.split(" ") if gate != ""]
+        
         terms = 0
+        current_gate = expression[0]
+        for gate in expression:
+            if gate != current_gate:
+                current_gate = gate
+                terms += 1
 
         return literals + unique_complements + terms
                 
