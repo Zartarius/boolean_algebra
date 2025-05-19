@@ -1,5 +1,5 @@
 COMPLEMENT = "'"
-
+import ast
 def set_complement(complement):
     global COMPLEMENT
     COMPLEMENT = complement
@@ -141,7 +141,7 @@ def _gen_all_ess_implicants(implicant_chart):
 class boolean_expression:     
     def __init__(self, expression, complement=None):
         global COMPLEMENT
-        if complement is None:
+        if complement == None:
             complement = COMPLEMENT
         self._cmpl = complement
 
@@ -208,7 +208,7 @@ class boolean_expression:
         print(truth_table)
     
     def min_max_terms(self):
-        if self._m is not None and self._M is not None:
+        if self._m != None and self._M != None:
             return {"minterms": self._m, "maxterms": self._M}
         
         minterms = []
@@ -228,7 +228,7 @@ class boolean_expression:
         return {"minterms": self._m, "maxterms": self._M}
     
     def prime_implicants(self):
-        if self._p_impl is None:
+        if self._p_impl == None:
             minterms = self.min_max_terms()["minterms"]
             max_bits = len(self._params)
             groups = {group_num: [] for group_num in range(max_bits+1)}
@@ -246,7 +246,7 @@ class boolean_expression:
             )
             for p_implicant in p_implicants
         ]
-        sorting_key = lambda term: sum(ord(char) for char in term if char is not self._cmpl)
+        sorting_key = lambda term: sum(ord(char) for char in term if char != self._cmpl)
         p_implicants = sorted(p_implicants, key=sorting_key)
 
         return ", ".join(p_implicant for p_implicant in p_implicants)
@@ -261,7 +261,7 @@ class boolean_expression:
             groups[bin_str.count("1")].append((minterm, bin_str))
         
         p_implicants = _gen_prime_implicants(groups, max_bits)
-        if self._p_impl is None:
+        if self._p_impl == None:
             self._p_impl = p_implicants
 
         implicant_chart = {minterm: [] for minterm in minterms}
@@ -284,7 +284,7 @@ class boolean_expression:
             )
             for ess_implicant in ess_implicants
         ]
-        sorting_key = lambda term: sum(ord(char) for char in term if char is not self._cmpl)
+        sorting_key = lambda term: sum(ord(char) for char in term if char != self._cmpl)
         simplified_SOP = sorted(simplified_SOP, key=sorting_key)
         return "+".join(term for term in simplified_SOP)
         
@@ -344,7 +344,7 @@ class boolean_expression:
         for substr in (self._params + ("not","(", ")")):
             expression = expression.replace(substr, "")
         expression = [gate for gate in expression.split(" ") if gate != ""]
-        
+        print(expression)
         terms = 0
         current_gate = expression[0]
         for gate in expression:
