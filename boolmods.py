@@ -4,14 +4,14 @@ def set_complement(complement):
     global COMPLEMENT
     COMPLEMENT = complement
 
-def _my_bin(x, num_bits):
+def __my_bin(x, num_bits):
     bits = [(x >> i) & 1 for i in range(num_bits-1, -1, -1)]
     return "".join(str(bit) for bit in bits)
 
-def _flatten_matrix(matrix):
+def __flatten_matrix(matrix):
     return [x for row in matrix for x in row]
 
-def _gen_prime_implicants(groups, max_bits):
+def __gen_prime_implicants(groups, max_bits):
     new_groups = {group_num: [] for group_num in range(max_bits+1)}
     checked = set()
 
@@ -32,17 +32,17 @@ def _gen_prime_implicants(groups, max_bits):
                     new_groups[group_num].append(new_group)
 
     if not checked:
-        return _flatten_matrix(groups.values())
+        return __flatten_matrix(groups.values())
     
     prime_implicants = []
-    for implicants in _flatten_matrix(groups.values()):
+    for implicants in __flatten_matrix(groups.values()):
         if tuple(sorted(implicants[:-1])) not in checked:
             prime_implicants.append(implicants)
 
-    return prime_implicants + _gen_prime_implicants(new_groups, max_bits)
+    return prime_implicants + __gen_prime_implicants(new_groups, max_bits)
 
 
-def _gen_ess_implicants(implicant_chart):
+def __gen_ess_implicants(implicant_chart):
     if all(len(row) == 0 for row in implicant_chart.values()):
         return []
 
@@ -68,7 +68,7 @@ def _gen_ess_implicants(implicant_chart):
             elif set(row2) >= set(row1):
                 implicant_chart.pop(rem_minterms[j])
 
-    colwise_implicant_chart = {prime_implicant: [] for prime_implicant in _flatten_matrix(implicant_chart.values())}
+    colwise_implicant_chart = {prime_implicant: [] for prime_implicant in __flatten_matrix(implicant_chart.values())}
     for minterm, prime_implicants in implicant_chart.items():
         for prime_implicant in prime_implicants:
             colwise_implicant_chart[prime_implicant].append(minterm)
@@ -87,7 +87,7 @@ def _gen_ess_implicants(implicant_chart):
                     if rem_implicants[i] in prime_implicants:
                         implicant_chart[minterm].remove(rem_implicants[i])
                
-    return ess_implicants  + _gen_ess_implicants(implicant_chart)
+    return ess_implicants  + __gen_ess_implicants(implicant_chart)
 
 '''
 def _gen_all_ess_implicants(implicant_chart):
@@ -143,11 +143,11 @@ class boolean_expression:
         global COMPLEMENT
         if complement == None:
             complement = COMPLEMENT
-        self._cmpl = complement
+        self.__cmpl = complement
 
-        self._m = None
-        self._M = None
-        self._p_impl = None
+        self.__m = None
+        self.__M = None
+        self.__p_impl = None
 
         expression = expression.replace(" ", "")
         temp = ""
@@ -175,17 +175,17 @@ class boolean_expression:
                 
             expression = f"{expression[:j+1]}(not {expression[j+1:i+1]}){expression[i+2:]}"
             
-        self._expr = expression
+        self.__expr = expression
 
         temp = expression.replace("and", "").replace("or", "").replace("not", "")
         params = set([char for char in temp if char not in " ()10"])
-        self._params = tuple(sorted(list(params)))
+        self.__params = tuple(sorted(list(params)))
         
     def evaluate(self, inputs):
         inputs = inputs.replace(" ", "")
         inputs = inputs.split(",")
 
-        expression = self._expr
+        expression = self.__expr
         for param in inputs:
             expression = expression.replace(param[0], param[2])
             
@@ -193,76 +193,76 @@ class boolean_expression:
         
     def truth_table(self):
         truth_table = ""
-        for param in self._params:
+        for param in self.__params:
             truth_table += f" {param} |"
-        truth_table += " OUT\n" + ("-" * (len(self._params) * 5 + 2)) + "\n"
+        truth_table += " OUT\n" + ("-" * (len(self.__params) * 5 + 2)) + "\n"
         
-        for bits in range(2 ** len(self._params)):
+        for bits in range(2 ** len(self.__params)):
             expression = self._expr
             for i in range(len(self._params)):
-                bit = (bits >> (len(self._params) - i - 1)) & 1
+                bit = (bits >> (len(self.__params) - i - 1)) & 1
                 truth_table += f" {bit} |"
-                expression = expression.replace(self._params[i], str(bit))
+                expression = expression.replace(self.__params[i], str(bit))
             truth_table += f"  {int(eval(expression))}\n"
 
         print(truth_table)
     
     def min_max_terms(self):
-        if self._m != None and self._M != None:
-            return {"minterms": self._m, "maxterms": self._M}
+        if self.__m != None and self.__M != None:
+            return {"minterms": self.__m, "maxterms": self.__M}
         
         minterms = []
         maxterms = []
         
-        for bits in range(2 ** len(self._params)):
-            expression = self._expr
-            for i in range(len(self._params)):
-                bit = (bits >> (len(self._params) - i - 1)) & 1
-                expression = expression.replace(self._params[i], str(bit))
+        for bits in range(2 ** len(self.__params)):
+            expression = self.__expr
+            for i in range(len(self.__params)):
+                bit = (bits >> (len(self.__params) - i - 1)) & 1
+                expression = expression.replace(self.__params[i], str(bit))
                 
             if int(eval(expression)) == 0: maxterms.append(bits)
             else: minterms.append(bits)
 
-        self._m = tuple(minterms)
-        self._M = tuple(maxterms)
-        return {"minterms": self._m, "maxterms": self._M}
+        self.__m = tuple(minterms)
+        self.__M = tuple(maxterms)
+        return {"minterms": self.__m, "maxterms": self.__M}
     
     def prime_implicants(self):
-        if self._p_impl == None:
+        if self.__p_impl == None:
             minterms = self.min_max_terms()["minterms"]
-            max_bits = len(self._params)
+            max_bits = len(self.__params)
             groups = {group_num: [] for group_num in range(max_bits+1)}
 
             for minterm in minterms:
-                bin_str = _my_bin(minterm, num_bits=max_bits)
+                bin_str = __my_bin(minterm, num_bits=max_bits)
                 groups[bin_str.count("1")].append((minterm, bin_str))
-            self._p_impl = _gen_prime_implicants(groups, max_bits)
+            self.__p_impl = __gen_prime_implicants(groups, max_bits)
 
-        p_implicants = [p_implicant[-1] for p_implicant in self._p_impl]
+        p_implicants = [p_implicant[-1] for p_implicant in self.__p_impl]
         p_implicants = [
             "".join(
-                param if bit == "1" else param + self._cmpl
-                for bit, param in zip(p_implicant, self._params) if bit != "-"
+                param if bit == "1" else param + self.__cmpl
+                for bit, param in zip(p_implicant, self.__params) if bit != "-"
             )
             for p_implicant in p_implicants
         ]
-        sorting_key = lambda term: sum(ord(char) for char in term if char != self._cmpl)
+        sorting_key = lambda term: sum(ord(char) for char in term if char != self.__cmpl)
         p_implicants = sorted(p_implicants, key=sorting_key)
 
         return ", ".join(p_implicant for p_implicant in p_implicants)
 
     def SOP_form(self):
         minterms = self.min_max_terms()["minterms"]
-        max_bits = len(self._params)
+        max_bits = len(self.__params)
         groups = {group_num: [] for group_num in range(max_bits+1)}
 
         for minterm in minterms:
-            bin_str = _my_bin(minterm, num_bits=max_bits)
+            bin_str = __my_bin(minterm, num_bits=max_bits)
             groups[bin_str.count("1")].append((minterm, bin_str))
         
-        p_implicants = _gen_prime_implicants(groups, max_bits)
-        if self._p_impl == None:
-            self._p_impl = p_implicants
+        p_implicants = __gen_prime_implicants(groups, max_bits)
+        if self.__p_impl == None:
+            self.__p_impl = p_implicants
 
         implicant_chart = {minterm: [] for minterm in minterms}
 
@@ -270,7 +270,7 @@ class boolean_expression:
             for minterm in p_implicant[:-1]:
                 implicant_chart[minterm].append(p_implicant) 
 
-        ess_implicants = _gen_ess_implicants(implicant_chart)
+        ess_implicants = __gen_ess_implicants(implicant_chart)
 
         if len(ess_implicants) == 0:
             return "0"
@@ -279,25 +279,25 @@ class boolean_expression:
         
         simplified_SOP = [
             "".join(
-                param if bit == "1" else param + self._cmpl
-                for bit, param in zip(ess_implicant, self._params) if bit != "-"
+                param if bit == "1" else param + self.__cmpl
+                for bit, param in zip(ess_implicant, self.__params) if bit != "-"
             )
             for ess_implicant in ess_implicants
         ]
-        sorting_key = lambda term: sum(ord(char) for char in term if char != self._cmpl)
+        sorting_key = lambda term: sum(ord(char) for char in term if char != self.__cmpl)
         simplified_SOP = sorted(simplified_SOP, key=sorting_key)
         return "+".join(term for term in simplified_SOP)
         
     def POS_form(self):
         maxterms = self.min_max_terms()["maxterms"]
-        max_bits = len(self._params)
+        max_bits = len(self.__params)
         groups = {group_num: [] for group_num in range(max_bits+1)}
 
         for maxterm in maxterms:
-            bin_str = _my_bin(maxterm, num_bits=max_bits)
+            bin_str = __my_bin(maxterm, num_bits=max_bits)
             groups[bin_str.count("1")].append((maxterm, bin_str))
         
-        p_implicants = _gen_prime_implicants(groups, max_bits)
+        p_implicants = __gen_prime_implicants(groups, max_bits)
 
         implicant_chart = {maxterm: [] for maxterm in maxterms}
 
@@ -305,7 +305,7 @@ class boolean_expression:
             for maxterm in p_implicant[:-1]:
                 implicant_chart[maxterm].append(p_implicant) 
 
-        ess_implicants = _gen_ess_implicants(implicant_chart)
+        ess_implicants = __gen_ess_implicants(implicant_chart)
 
         if len(ess_implicants) == 0:
             return "1"
@@ -314,12 +314,12 @@ class boolean_expression:
         
         simplified_POS = [
             f"({"+".join(
-                param if bit == "0" else param + self._cmpl
-                for bit, param in zip(ess_implicant, self._params) if bit != "-"
+                param if bit == "0" else param + self.__cmpl
+                for bit, param in zip(ess_implicant, self.__params) if bit != "-"
             )})"
             for ess_implicant in ess_implicants
         ]
-        sorting_key = lambda term: sum(ord(char) for char in term if char not in {"(", ")", "+", self._cmpl})
+        sorting_key = lambda term: sum(ord(char) for char in term if char not in {"(", ")", "+", self.__cmpl})
         simplified_POS = sorted(simplified_POS, key=sorting_key)
         return "".join(term for term in simplified_POS)
 
@@ -345,9 +345,9 @@ class boolean_expression:
             return num_gates
             
 
-        tokens = tuple((self._expr).replace("(", "( ").replace(")", " )").split())
+        tokens = tuple((self.__expr).replace("(", "( ").replace(")", " )").split())
 
-        literals = sum(1 for token in tokens if token in self._params or token in "01")
+        literals = sum(1 for token in tokens if token in self.__params or token in "01")
 
         unique_complements = set()
         for i in range(len(tokens)):
@@ -368,45 +368,7 @@ class boolean_expression:
             terms += __calc_terms(tokens[i+1:j])
             tokens = tokens[:i] + ("@",) + tokens[j+1:]
 
-        return literals + unique_complements + terms - 1
-    '''
-    def GIC(self):
-        literals = sum(1 for char in self._expr if char in self._params or char in "01")
-
-        unique_complements = set()
-        expression = self._expr
-        while "not" in expression:
-            for i in range(len(expression)-4):
-                if expression[i+1:i+4] == "not":
-                    j = i 
-                    bracket_count = 1
-                    while bracket_count > 0:
-                        j += 1
-                        if expression[j] == ")": bracket_count -= 1
-                        elif expression[j] == "(": bracket_count += 1
-                    unique_complements.add(expression[i:j+1])
-                    expression = (expression[:i+1] + expression[i+4:])
-        unique_complements = len(unique_complements)
-
-        terms = 0
-
-        expression = self._expr
-        for substr in self._params + ("not",):
-            expression = expression.replace(substr, "")
-        expression = expression.replace("(", "( ").replace(")", " )")
-        tokens = expression.split()
-        print(tokens)
-        terms = 0
-        current_token = tokens[0]
-        for token in tokens:
-            if token not in "()" and token != current_token:
-                current_token = token
-                terms += 1
-
-
-        print(literals, unique_complements, terms)
-        return literals + unique_complements + terms
-        '''    
+        return literals + unique_complements + terms - 1  
 
 
 class boolean_terms:
