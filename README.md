@@ -13,6 +13,7 @@ Requires 0 external libraries or packages.
 - `min_max_terms`: Returns the min and max terms of the function.
 - `SOP_form`: Returns the *simplified* Sum of Products (SOP) form of the expression, as a string. 
 - `POS_form`: Returns the *simplified* Product of Sums (POS) form of the expression, as a string.
+- `GIC`: Returns the Gate Input Cost (GIC) of the (original) expression.
 
 
 
