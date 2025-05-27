@@ -191,20 +191,22 @@ class boolean_expression:
             
         return int(eval(expression))
         
-    def truth_table(self) -> None:
+    def truth_table(self, print_table:bool=True) -> None:
         truth_table = ""
         for param in self.__params:
             truth_table += f" {param} |"
         truth_table += " OUT\n" + ("-" * (len(self.__params) * 5 + 2)) + "\n"
         
         for bits in range(2 ** len(self.__params)):
-            expression = self._expr
-            for i in range(len(self._params)):
+            expression = self.__expr
+            for i in range(len(self.__params)):
                 bit = (bits >> (len(self.__params) - i - 1)) & 1
                 truth_table += f" {bit} |"
                 expression = expression.replace(self.__params[i], str(bit))
             truth_table += f"  {int(eval(expression))}\n"
 
+        if not print_table:
+            return truth_table
         print(truth_table)
     
     def min_max_terms(self) -> dict[str, tuple[int]]:
@@ -344,7 +346,6 @@ class boolean_expression:
                     curr_gate = gate
             return num_gates
             
-
         tokens = tuple((self.__expr).replace("(", "( ").replace(")", " )").split())
 
         literals = sum(1 for token in tokens if token in self.__params or token in "01")
@@ -369,6 +370,22 @@ class boolean_expression:
             tokens = tokens[:i] + ("@",) + tokens[j+1:]
 
         return literals + unique_complements + terms - 1  
+
+    def print_summary(self) -> None:
+        min_max_terms = self.min_max_terms()
+        summary = f"""Summary of "{self.__expr}"
+
+Truth table:
+{self.truth_table(print_table=False)}
+Minterms: {min_max_terms["minterms"]}
+Maxterms: {min_max_terms["maxterms"]}
+Sum of Products form (SOP): {self.SOP_form()}
+Products of Sums form (POS): {self.POS_form()}
+Prime implicants: {self.prime_implicants()}
+Gate Input Cost (GIC): {self.GIC()}
+        """
+
+        print(summary)
 
 
 class boolean_terms:
