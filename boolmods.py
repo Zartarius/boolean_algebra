@@ -1,6 +1,6 @@
 COMPLEMENT = "'"
 
-def set_complement(complement:str):
+def set_complement(complement:str) -> None:
     global COMPLEMENT
     COMPLEMENT = complement
 
@@ -181,7 +181,7 @@ class boolean_expression:
         params = set([char for char in temp if char not in " ()10"])
         self.__params = tuple(sorted(list(params)))
         
-    def evaluate(self, inputs:str):
+    def evaluate(self, inputs:str) -> int:
         inputs = inputs.replace(" ", "")
         inputs = inputs.split(",")
 
@@ -191,7 +191,7 @@ class boolean_expression:
             
         return int(eval(expression))
         
-    def truth_table(self):
+    def truth_table(self) -> None:
         truth_table = ""
         for param in self.__params:
             truth_table += f" {param} |"
@@ -207,7 +207,7 @@ class boolean_expression:
 
         print(truth_table)
     
-    def min_max_terms(self):
+    def min_max_terms(self) -> dict[str, tuple[int]]:
         if self.__m != None and self.__M != None:
             return {"minterms": self.__m, "maxterms": self.__M}
         
@@ -227,7 +227,7 @@ class boolean_expression:
         self.__M = tuple(maxterms)
         return {"minterms": self.__m, "maxterms": self.__M}
     
-    def prime_implicants(self):
+    def prime_implicants(self) -> str:
         if self.__p_impl == None:
             minterms = self.min_max_terms()["minterms"]
             max_bits = len(self.__params)
@@ -251,7 +251,7 @@ class boolean_expression:
 
         return ", ".join(p_implicant for p_implicant in p_implicants)
 
-    def SOP_form(self):
+    def SOP_form(self) -> str:
         minterms = self.min_max_terms()["minterms"]
         max_bits = len(self.__params)
         groups = {group_num: [] for group_num in range(max_bits+1)}
@@ -288,7 +288,7 @@ class boolean_expression:
         simplified_SOP = sorted(simplified_SOP, key=sorting_key)
         return "+".join(term for term in simplified_SOP)
         
-    def POS_form(self):
+    def POS_form(self) -> str:
         maxterms = self.min_max_terms()["maxterms"]
         max_bits = len(self.__params)
         groups = {group_num: [] for group_num in range(max_bits+1)}
@@ -323,7 +323,7 @@ class boolean_expression:
         simplified_POS = sorted(simplified_POS, key=sorting_key)
         return "".join(term for term in simplified_POS)
 
-    def GIC(self):
+    def GIC(self) -> int:
         def __find_deepest_brackets(tokens):
             for i in range(len(tokens)):
                 if tokens[i] == "(":
