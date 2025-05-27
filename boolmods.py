@@ -324,12 +324,26 @@ class boolean_expression:
         return "".join(term for term in simplified_POS)
 
     def GIC(self):
-        def __find_nested_term(tokens):
+        def __find_deepest_brackets(tokens):
             for i in range(len(tokens)):
                 if tokens[i] == "(":
                     j = tokens.index(")", i)
-                    if "(" not in tokens[i:j+1]:
+                    if "(" not in tokens[i+1:j+1]:
                         return i, j
+        
+        def __calc_terms(tokens):
+            gates = [token for token in tokens if token in {"and", "or"}]
+            
+            if len(gates) == 0:
+                return 0
+            num_gates = 1
+            curr_gate = gates[0]
+            for gate in gates:
+                if gate != curr_gate:
+                    num_gates += 1
+                    curr_gate = gate
+            return num_gates
+            
 
         tokens = tuple((self._expr).replace("(", "( ").replace(")", " )").split())
 
@@ -347,12 +361,14 @@ class boolean_expression:
                 unique_complements.add(tuple(tokens[i+1:j]))
         unique_complements = len(unique_complements)
 
-        expression = self._expr
         terms = 0
+        tokens = ("(",) + tokens + (")",)
         while "(" in tokens:
-            i, j = __find_nested_term(tokens)
+            i, j = __find_deepest_brackets(tokens)
+            terms += __calc_terms(tokens[i+1:j])
+            tokens = tokens[:i] + ("@",) + tokens[j+1:]
 
-        return None
+        return literals + unique_complements + terms - 1
     '''
     def GIC(self):
         literals = sum(1 for char in self._expr if char in self._params or char in "01")
