@@ -1,5 +1,5 @@
 COMPLEMENT = "'"
-import ast
+
 def set_complement(complement):
     global COMPLEMENT
     COMPLEMENT = complement
@@ -319,10 +319,41 @@ class boolean_expression:
             )})"
             for ess_implicant in ess_implicants
         ]
-        sorting_key = lambda term: sum(ord(char) for char in term if char not in f"()+{self._cmpl}")
+        sorting_key = lambda term: sum(ord(char) for char in term if char not in {"(", ")", "+", self._cmpl})
         simplified_POS = sorted(simplified_POS, key=sorting_key)
         return "".join(term for term in simplified_POS)
-    
+
+    def GIC(self):
+        def __find_nested_term(tokens):
+            for i in range(len(tokens)):
+                if tokens[i] == "(":
+                    j = tokens.index(")", i)
+                    if "(" not in tokens[i:j+1]:
+                        return i, j
+
+        tokens = tuple((self._expr).replace("(", "( ").replace(")", " )").split())
+
+        literals = sum(1 for token in tokens if token in self._params or token in "01")
+
+        unique_complements = set()
+        for i in range(len(tokens)):
+            if tokens[i] == "(" and tokens[i+1] == "not":  
+                bracket_count = 1
+                j = i 
+                while bracket_count > 0:
+                    j += 1
+                    if tokens[j] == "(": bracket_count += 1
+                    elif tokens[j] == ")": bracket_count -= 1
+                unique_complements.add(tuple(tokens[i+1:j]))
+        unique_complements = len(unique_complements)
+
+        expression = self._expr
+        terms = 0
+        while "(" in tokens:
+            i, j = __find_nested_term(tokens)
+
+        return None
+    '''
     def GIC(self):
         literals = sum(1 for char in self._expr if char in self._params or char in "01")
 
@@ -341,19 +372,25 @@ class boolean_expression:
                     expression = (expression[:i+1] + expression[i+4:])
         unique_complements = len(unique_complements)
 
-        for substr in (self._params + ("not","(", ")")):
-            expression = expression.replace(substr, "")
-        expression = [gate for gate in expression.split(" ") if gate != ""]
-        print(expression)
         terms = 0
-        current_gate = expression[0]
-        for gate in expression:
-            if gate != current_gate:
-                current_gate = gate
+
+        expression = self._expr
+        for substr in self._params + ("not",):
+            expression = expression.replace(substr, "")
+        expression = expression.replace("(", "( ").replace(")", " )")
+        tokens = expression.split()
+        print(tokens)
+        terms = 0
+        current_token = tokens[0]
+        for token in tokens:
+            if token not in "()" and token != current_token:
+                current_token = token
                 terms += 1
 
+
+        print(literals, unique_complements, terms)
         return literals + unique_complements + terms
-                
+        '''    
 
 
 class boolean_terms:
