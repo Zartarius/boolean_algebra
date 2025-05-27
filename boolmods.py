@@ -4,14 +4,14 @@ def set_complement(complement):
     global COMPLEMENT
     COMPLEMENT = complement
 
-def __my_bin(x, num_bits):
+def _my_bin(x, num_bits):
     bits = [(x >> i) & 1 for i in range(num_bits-1, -1, -1)]
     return "".join(str(bit) for bit in bits)
 
-def __flatten_matrix(matrix):
+def _flatten_matrix(matrix):
     return [x for row in matrix for x in row]
 
-def __gen_prime_implicants(groups, max_bits):
+def _gen_prime_implicants(groups, max_bits):
     new_groups = {group_num: [] for group_num in range(max_bits+1)}
     checked = set()
 
@@ -32,17 +32,17 @@ def __gen_prime_implicants(groups, max_bits):
                     new_groups[group_num].append(new_group)
 
     if not checked:
-        return __flatten_matrix(groups.values())
+        return _flatten_matrix(groups.values())
     
     prime_implicants = []
-    for implicants in __flatten_matrix(groups.values()):
+    for implicants in _flatten_matrix(groups.values()):
         if tuple(sorted(implicants[:-1])) not in checked:
             prime_implicants.append(implicants)
 
-    return prime_implicants + __gen_prime_implicants(new_groups, max_bits)
+    return prime_implicants + _gen_prime_implicants(new_groups, max_bits)
 
 
-def __gen_ess_implicants(implicant_chart):
+def _gen_ess_implicants(implicant_chart):
     if all(len(row) == 0 for row in implicant_chart.values()):
         return []
 
@@ -68,7 +68,7 @@ def __gen_ess_implicants(implicant_chart):
             elif set(row2) >= set(row1):
                 implicant_chart.pop(rem_minterms[j])
 
-    colwise_implicant_chart = {prime_implicant: [] for prime_implicant in __flatten_matrix(implicant_chart.values())}
+    colwise_implicant_chart = {prime_implicant: [] for prime_implicant in _flatten_matrix(implicant_chart.values())}
     for minterm, prime_implicants in implicant_chart.items():
         for prime_implicant in prime_implicants:
             colwise_implicant_chart[prime_implicant].append(minterm)
@@ -87,7 +87,7 @@ def __gen_ess_implicants(implicant_chart):
                     if rem_implicants[i] in prime_implicants:
                         implicant_chart[minterm].remove(rem_implicants[i])
                
-    return ess_implicants  + __gen_ess_implicants(implicant_chart)
+    return ess_implicants  + _gen_ess_implicants(implicant_chart)
 
 '''
 def _gen_all_ess_implicants(implicant_chart):
@@ -234,9 +234,9 @@ class boolean_expression:
             groups = {group_num: [] for group_num in range(max_bits+1)}
 
             for minterm in minterms:
-                bin_str = __my_bin(minterm, num_bits=max_bits)
+                bin_str = _my_bin(minterm, num_bits=max_bits)
                 groups[bin_str.count("1")].append((minterm, bin_str))
-            self.__p_impl = __gen_prime_implicants(groups, max_bits)
+            self.__p_impl = _gen_prime_implicants(groups, max_bits)
 
         p_implicants = [p_implicant[-1] for p_implicant in self.__p_impl]
         p_implicants = [
@@ -257,10 +257,10 @@ class boolean_expression:
         groups = {group_num: [] for group_num in range(max_bits+1)}
 
         for minterm in minterms:
-            bin_str = __my_bin(minterm, num_bits=max_bits)
+            bin_str = _my_bin(minterm, num_bits=max_bits)
             groups[bin_str.count("1")].append((minterm, bin_str))
         
-        p_implicants = __gen_prime_implicants(groups, max_bits)
+        p_implicants = _gen_prime_implicants(groups, max_bits)
         if self.__p_impl == None:
             self.__p_impl = p_implicants
 
@@ -270,7 +270,7 @@ class boolean_expression:
             for minterm in p_implicant[:-1]:
                 implicant_chart[minterm].append(p_implicant) 
 
-        ess_implicants = __gen_ess_implicants(implicant_chart)
+        ess_implicants = _gen_ess_implicants(implicant_chart)
 
         if len(ess_implicants) == 0:
             return "0"
@@ -294,10 +294,10 @@ class boolean_expression:
         groups = {group_num: [] for group_num in range(max_bits+1)}
 
         for maxterm in maxterms:
-            bin_str = __my_bin(maxterm, num_bits=max_bits)
+            bin_str = _my_bin(maxterm, num_bits=max_bits)
             groups[bin_str.count("1")].append((maxterm, bin_str))
         
-        p_implicants = __gen_prime_implicants(groups, max_bits)
+        p_implicants = _gen_prime_implicants(groups, max_bits)
 
         implicant_chart = {maxterm: [] for maxterm in maxterms}
 
@@ -305,7 +305,7 @@ class boolean_expression:
             for maxterm in p_implicant[:-1]:
                 implicant_chart[maxterm].append(p_implicant) 
 
-        ess_implicants = __gen_ess_implicants(implicant_chart)
+        ess_implicants = _gen_ess_implicants(implicant_chart)
 
         if len(ess_implicants) == 0:
             return "1"
