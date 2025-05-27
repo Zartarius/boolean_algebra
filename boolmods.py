@@ -1,6 +1,6 @@
 COMPLEMENT = "'"
 
-def set_complement(complement):
+def set_complement(complement:str):
     global COMPLEMENT
     COMPLEMENT = complement
 
@@ -139,7 +139,7 @@ def _gen_all_ess_implicants(implicant_chart):
 '''
 
 class boolean_expression:     
-    def __init__(self, expression, complement=None):
+    def __init__(self, expression:str, complement:str=None) -> None:
         global COMPLEMENT
         if complement == None:
             complement = COMPLEMENT
@@ -181,7 +181,7 @@ class boolean_expression:
         params = set([char for char in temp if char not in " ()10"])
         self.__params = tuple(sorted(list(params)))
         
-    def evaluate(self, inputs):
+    def evaluate(self, inputs:str):
         inputs = inputs.replace(" ", "")
         inputs = inputs.split(",")
 
