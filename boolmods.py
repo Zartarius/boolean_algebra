@@ -376,8 +376,8 @@ class boolean_expression:
 
 Truth table:
 {self.truth_table(print_table=False)}
-Minterms: {min_max_terms["minterms"]}
-Maxterms: {min_max_terms["maxterms"]}
+Minterms: {", ".join(str(minterm) for minterm in min_max_terms["minterms"])}
+Maxterms: {", ".join(str(maxterm) for maxterm in min_max_terms["maxterms"])}
 Sum of Products form (SOP): {self.SOP_form()}
 Products of Sums form (POS): {self.POS_form()}
 Prime implicants: {self.prime_implicants()}
