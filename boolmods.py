@@ -1,8 +1,8 @@
-COMPLEMENT = "'"
+_COMPLEMENT = "'"
 
 def set_complement(complement:str) -> None:
-    global COMPLEMENT
-    COMPLEMENT = complement
+    global _COMPLEMENT
+    _COMPLEMENT = complement
 
 def _my_bin(x, num_bits):
     bits = [(x >> i) & 1 for i in range(num_bits-1, -1, -1)]
@@ -140,9 +140,9 @@ def _gen_all_ess_implicants(implicant_chart):
 
 class boolean_expression:     
     def __init__(self, expression:str, complement:str=None) -> None:
-        global COMPLEMENT
+        global _COMPLEMENT
         if complement == None:
-            complement = COMPLEMENT
+            complement = _COMPLEMENT
         self.__cmpl = complement
 
         self.__m = None
@@ -152,11 +152,11 @@ class boolean_expression:
         expression = expression.replace(" ", "")
         temp = ""
         for i in range(len(expression)):
-            if i != len(expression) - 1 and expression[i] not in "+(" and expression[i + 1] not in f"+){complement}":
+            if i != len(expression) - 1 and expression[i] not in {"+", "("} and expression[i+1] not in {"+", ")", complement}:
                 temp += f"{expression[i]} and "
             else: 
                 temp += expression[i]
-                
+                     
         expression = temp.replace("+", " or ")
 
         while complement in expression:
@@ -221,7 +221,6 @@ class boolean_expression:
             for i in range(len(self.__params)):
                 bit = (bits >> (len(self.__params) - i - 1)) & 1
                 expression = expression.replace(self.__params[i], str(bit))
-                
             if int(eval(expression)) == 0: maxterms.append(bits)
             else: minterms.append(bits)
 
@@ -389,9 +388,9 @@ Gate Input Cost (GIC): {self.GIC()}
 
 
 class boolean_terms:
-    global COMPLEMENT
+    global _COMPLEMENT
     
-    def __init__(self, params, minterms=(), maxterms=(), dcs=(), complement=COMPLEMENT):
+    def __init__(self, params, minterms=(), maxterms=(), dcs=(), complement=_COMPLEMENT):
         self._params = params
         self._dcs = dcs
         self._cmpl = complement
