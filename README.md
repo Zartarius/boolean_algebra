@@ -20,7 +20,7 @@ Requires 0 external libraries or packages.
 
 
 **boolean_terms**
-(To be added later)
+(To be added soon)
 
 
 
