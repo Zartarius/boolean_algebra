@@ -140,14 +140,6 @@ def _gen_all_ess_implicants(implicant_chart):
 
 class boolean_expression:      
     def __init__(self, expression:str, complement:str=None) -> None:
-        """
-        Initialise the boolean expression as a boolean_expression object. Takes
-        an optional complement argument of str type.  
-        Takes in the expression as a string, where '+' is used for logical OR, and 
-        placing parameters next to each other (i.e. ABC) will logically AND them. 
-        For logical NOT, place the complement AFTER a parameter/term (i.e. A').
-        Whitespace will be automatically removed.
-        """
         global _COMPLEMENT
         if complement == None:
             complement = _COMPLEMENT
@@ -190,12 +182,6 @@ class boolean_expression:
         self.__params = tuple(sorted(list(params)))
         
     def evaluate(self, inputs:str) -> int:
-        """
-        Takes in 'keyword arguments' in string format (i.e. "A=0,B=1,C=0"). 
-        Each argument must be separated by a comma, and parameters must be on the left
-        -hand side of the equation. Whitespace will be automatically removed, 
-        and order of the arguments being passed in does NOT matter (i.e. "C=0,A=0,B=1" is also fine).
-        """
         inputs = inputs.replace(" ", "")
         inputs = inputs.split(",")
 
@@ -206,6 +192,9 @@ class boolean_expression:
         return int(eval(expression))
         
     def truth_table(self, print_table:bool=True) -> None:
+        """
+        print_table - 
+        """
         truth_table = ""
         for param in self.__params:
             truth_table += f" {param} |"
@@ -345,7 +334,7 @@ class boolean_expression:
                     j = tokens.index(")", i)
                     if "(" not in tokens[i+1:j+1]:
                         return i, j
-        
+
         def __calc_terms(tokens):
             gates = [token for token in tokens if token in {"and", "or"}]
             
