@@ -439,3 +439,9 @@ class boolean_terms:
             elif bits in self._M: truth_table += "  0\n"
             else: truth_table += "  -\n"
         print(truth_table)
+    
+    def SOP_form(self):
+        pass
+
+    def POS_form(self):
+        pass
