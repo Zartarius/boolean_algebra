@@ -5,7 +5,7 @@ Example usage is shown in `main.py`.
 Requires 0 external libraries or packages. 
 
 
-- `set_complement`: Takes in a string that will be used to as the complement (logical NOT) symbol. Default complement is set to `'`.
+- `set_complement`: Takes in a string that will be used as the complement (logical NOT) symbol. Default complement is set to `'`.
 
 **boolean_expression**
 - `__init__`: Takes in a boolean equation in string form, where '+' is used for OR, placing literals/terms next to each other is used to AND them, and a character of the user's choice can be used to complement a literal or term (i.e. A+(BC)', where ' is used to complement). The equation can have an arbitrary number of variables. Function parameters must be a single alphabetical character, lowercase and uppercase are both fine. Using '0' or '1' will implicitly use them as their truth values (i.e. passing in "A+1" will always evaluate to true/1).
