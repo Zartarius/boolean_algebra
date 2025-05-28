@@ -1,5 +1,5 @@
 # Boolean Algebra modules (Work in progress)
-Modules to help with problems relating to boolean algebra and digital circuit design (calculating Gate Input Cost, boolean simplification, printing truth tables, SOP/POS form, implicants etc). 
+Modules to help with problems relating to boolean algebra and digital circuit design (calculating Gate Input Cost, boolean simplification, printing truth tables, SOP/POS form, prime implicants etc). 
 
 Example usage is shown in `main.py`.
 Requires 0 external libraries or packages. 
