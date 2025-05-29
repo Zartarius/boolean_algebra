@@ -94,7 +94,7 @@ def _gen_all_ess_implicants(implicant_chart):
     if all(len(row) == 0 for row in implicant_chart.values()):
         return []
 
-    ess_implicants = []
+    ess_implicants = []    
     for minterm in tuple(implicant_chart.keys()):
         if minterm in implicant_chart.keys() and len(implicant_chart[minterm]) == 1:
             ess_implicant = implicant_chart[minterm][0]
@@ -192,9 +192,6 @@ class boolean_expression:
         return int(eval(expression))
         
     def truth_table(self, print_table:bool=True) -> None:
-        """
-        print_table - 
-        """
         truth_table = ""
         for param in self.__params:
             truth_table += f" {param} |"
@@ -390,14 +387,14 @@ Gate Input Cost (GIC): {self.GIC()}
         print(summary)
 
 
-class boolean_terms:
-    global _COMPLEMENT
-    
+class boolean_terms: 
     def __init__(self, params, minterms=(), maxterms=(), dcs=(), complement=_COMPLEMENT):
-        self._params = params
-        self._dcs = dcs
-        self._cmpl = complement
-        
+        global _COMPLEMENT
+        self.__params = params
+        self.__dcs = dcs
+        self.__cmpl = complement
+        self.__p_impl = None
+
         m = []
         M = []
         for i in range(2 ** len(params)):
@@ -407,8 +404,8 @@ class boolean_terms:
             elif len(maxterms) > 0 and i in maxterms: M.append(i)
             elif len(maxterms) > 0 and i not in maxterms: m.append(i)
         
-        self._m = tuple(m)
-        self._M = tuple(M)
+        self.__m = tuple(m)
+        self.__M = tuple(M)
         
     def evaluate(self, inputs):
         inputs = inputs.replace(" ", "")
@@ -418,30 +415,98 @@ class boolean_terms:
         for bit in inputs:
             decimal = (decimal << 1) | int(bit[1])
             
-        if decimal in self._m: return 1
-        elif decimal in self._M: return 0
+        if decimal in self.__m: return 1
+        elif decimal in self.__M: return 0
         else: return None
         
     def min_max_terms(self):
-        return {"minterms": self._m, "maxterms": self._M, "don't cares": self._dcs}
+        return {"minterms": self.__m, "maxterms": self.__M, "don't cares": self.__dcs}
         
     def truth_table(self):
         truth_table = ""
-        for param in self._params:
+        for param in self.__params:
             truth_table += f" {param} |"
-        truth_table += " OUT\n" + ("-" * (len(self._params) * 5 + 2)) + "\n"
+        truth_table += " OUT\n" + ("-" * (len(self.__params) * 5 + 2)) + "\n"
         
-        for bits in range(2 ** len(self._params)):
-            for i in range(len(self._params)):
-                bit = (bits >> (len(self._params) - i - 1)) & 1
+        for bits in range(2 ** len(self.__params)):
+            for i in range(len(self.__params)):
+                bit = (bits >> (len(self.__params) - i - 1)) & 1
                 truth_table += f" {bit} |"
-            if bits in self._m: truth_table += "  1\n"
-            elif bits in self._M: truth_table += "  0\n"
+            if bits in self.__m: truth_table += "  1\n"
+            elif bits in self.__M: truth_table += "  0\n"
             else: truth_table += "  -\n"
         print(truth_table)
     
     def SOP_form(self):
-        pass
+        minterms_dcs = sorted(self.__m + self.__dcs)
+        max_bits = len(self.__params)
+        groups = {group_num: [] for group_num in range(max_bits+1)}
+
+        for minterm_dc in minterms_dcs:
+            bin_str = _my_bin(minterm_dc, num_bits=max_bits)
+            groups[bin_str.count("1")].append((minterm_dc, bin_str))
+        
+        if self.__p_impl == None:
+            self.__p_impl = _gen_prime_implicants(groups, max_bits)
+        p_implicants = self.__p_impl
+
+        implicant_chart = {minterm: [] for minterm in self.__m}
+
+        for p_implicant in p_implicants:
+            for minterm_dc in p_implicant[:-1]:
+                if minterm_dc in self.__m:
+                    implicant_chart[minterm_dc].append(p_implicant) 
+
+        ess_implicants = _gen_ess_implicants(implicant_chart)
+
+        if len(ess_implicants) == 0:
+            return "0"
+        elif "1" not in ess_implicants[0] and "0" not in ess_implicants[0]:
+            return "1"
+        
+        simplified_SOP = [
+            "".join(
+                param if bit == "1" else param + self.__cmpl
+                for bit, param in zip(ess_implicant, self.__params) if bit != "-"
+            )
+            for ess_implicant in ess_implicants
+        ]
+        sorting_key = lambda term: sum(ord(char) for char in term if char != self.__cmpl)
+        simplified_SOP = sorted(simplified_SOP, key=sorting_key)
+        return "+".join(term for term in simplified_SOP)
 
     def POS_form(self):
-        pass
+        maxterms_dcs = self.__M + self.__dcs
+        max_bits = len(self.__params)
+        groups = {group_num: [] for group_num in range(max_bits+1)}
+
+        for maxterm in maxterms_dcs:
+            bin_str = _my_bin(maxterm, num_bits=max_bits)
+            groups[bin_str.count("1")].append((maxterm, bin_str))
+        
+        p_implicants = _gen_prime_implicants(groups, max_bits)
+
+        implicant_chart = {maxterm: [] for maxterm in self.__M}
+
+        for p_implicant in p_implicants:
+            for maxterm_dc in p_implicant[:-1]:
+                if maxterm_dc in self.__M:
+                    implicant_chart[maxterm_dc].append(p_implicant) 
+
+        ess_implicants = _gen_ess_implicants(implicant_chart)
+
+        if len(ess_implicants) == 0:
+            return "1"
+        elif "1" not in ess_implicants[0] and "0" not in ess_implicants[0]:
+            return "0"
+        
+        simplified_POS = [
+            f"({"+".join(
+                param if bit == "0" else param + self.__cmpl
+                for bit, param in zip(ess_implicant, self.__params) if bit != "-"
+            )})"
+            for ess_implicant in ess_implicants
+        ]
+        sorting_key = lambda term: sum(ord(char) for char in term if char not in {"(", ")", "+", self.__cmpl})
+        simplified_POS = sorted(simplified_POS, key=sorting_key)
+        return "".join(term for term in simplified_POS)
