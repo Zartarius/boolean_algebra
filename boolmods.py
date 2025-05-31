@@ -149,7 +149,6 @@ class boolean_expression:
 
         self.__m = None
         self.__M = None
-        self.__p_impl = None
 
         expression = expression.replace(" ", "")
         temp = ""
@@ -231,17 +230,16 @@ class boolean_expression:
         return {"minterms": self.__m, "maxterms": self.__M}
     
     def prime_implicants(self) -> str:
-        if self.__p_impl == None:
-            minterms = self.min_max_terms()["minterms"]
-            max_bits = len(self.__params)
-            groups = {group_num: [] for group_num in range(max_bits+1)}
+        minterms = self.min_max_terms()["minterms"]
+        max_bits = len(self.__params)
+        groups = {group_num: [] for group_num in range(max_bits+1)}
 
-            for minterm in minterms:
-                bin_str = _my_bin(minterm, num_bits=max_bits)
-                groups[bin_str.count("1")].append((minterm, bin_str))
-            self.__p_impl = _gen_prime_implicants(groups, max_bits)
+        for minterm in minterms:
+            bin_str = _my_bin(minterm, num_bits=max_bits)
+            groups[bin_str.count("1")].append((minterm, bin_str))
+        p_implicants = _gen_prime_implicants(groups, max_bits)
 
-        p_implicants = [p_implicant[-1] for p_implicant in self.__p_impl]
+        p_implicants = [p_implicant[-1] for p_implicant in p_implicants]
         p_implicants = [
             "".join(
                 param if bit == "1" else param + self.__cmpl
@@ -264,8 +262,6 @@ class boolean_expression:
             groups[bin_str.count("1")].append((minterm, bin_str))
         
         p_implicants = _gen_prime_implicants(groups, max_bits)
-        if self.__p_impl == None:
-            self.__p_impl = p_implicants
 
         implicant_chart = {minterm: [] for minterm in minterms}
 
@@ -374,23 +370,22 @@ class boolean_expression:
 
     def print_summary(self) -> None:
         min_max_terms = self.min_max_terms()
-        summary = f"""Summary of "{self.__expr}"
+        print(f"""\n\nSummary
 
 Truth table:
 {self.truth_table(print_table=False)}
 Minterms: {", ".join(str(minterm) for minterm in min_max_terms["minterms"])}
 Maxterms: {", ".join(str(maxterm) for maxterm in min_max_terms["maxterms"])}
+
 Sum of Products form (SOP): {self.SOP_form()}
 Products of Sums form (POS): {self.POS_form()}
 Prime implicants: {self.prime_implicants()}
 Gate Input Cost (GIC): {self.GIC()}
-        """
-
-        print(summary)
-
+        """)
 
 class boolean_terms: 
-    def __init__(self, params, minterms=(), maxterms=(), dcs=(), complement=_COMPLEMENT):
+    def __init__(self, params:tuple[str], minterms:tuple[int]=(), maxterms:tuple[int]=(), 
+                 dcs:tuple[int]=(), complement:str=_COMPLEMENT) -> None:
         global _COMPLEMENT
         self.__params = params
         self.__dcs = dcs
@@ -409,7 +404,7 @@ class boolean_terms:
         self.__m = tuple(m)
         self.__M = tuple(M)
         
-    def evaluate(self, inputs):
+    def evaluate(self, inputs:str) -> int:
         inputs = inputs.replace(" ", "")
         inputs = inputs.split(",")
         
@@ -421,10 +416,10 @@ class boolean_terms:
         elif decimal in self.__M: return 0
         else: return None
         
-    def min_max_terms(self):
+    def min_max_terms(self) -> dict[str, tuple[int]]:
         return {"minterms": self.__m, "maxterms": self.__M, "don't cares": self.__dcs}
         
-    def truth_table(self, print_table:bool=True):
+    def truth_table(self, print_table:bool=True) -> str:
         truth_table = ""
         for param in self.__params:
             truth_table += f" {param} |"
@@ -442,7 +437,30 @@ class boolean_terms:
             return truth_table
         print(truth_table)
     
-    def SOP_form(self):
+    def prime_implicants(self) -> str:
+        minterms_dcs = sorted(self.__m + self.__dcs)
+        max_bits = len(self.__params)
+        groups = {group_num: [] for group_num in range(max_bits+1)}
+
+        for minterm_dc in minterms_dcs:
+            bin_str = _my_bin(minterm_dc, num_bits=max_bits)
+            groups[bin_str.count("1")].append((minterm_dc, bin_str))
+        p_implicants = _gen_prime_implicants(groups, max_bits)
+
+        p_implicants = [p_implicant[-1] for p_implicant in p_implicants]
+        p_implicants = [
+            "".join(
+                param if bit == "1" else param + self.__cmpl
+                for bit, param in zip(p_implicant, self.__params) if bit != "-"
+            )
+            for p_implicant in p_implicants
+        ]
+        sorting_key = lambda term: sum(ord(char) for char in term if char != self.__cmpl)
+        p_implicants = sorted(p_implicants, key=sorting_key)
+
+        return ", ".join(p_implicant for p_implicant in p_implicants)
+    
+    def SOP_form(self) -> str:
         minterms_dcs = sorted(self.__m + self.__dcs)
         max_bits = len(self.__params)
         groups = {group_num: [] for group_num in range(max_bits+1)}
@@ -478,7 +496,7 @@ class boolean_terms:
         simplified_SOP = sorted(simplified_SOP, key=sorting_key)
         return "+".join(term for term in simplified_SOP)
 
-    def POS_form(self):
+    def POS_form(self) -> str:
         maxterms_dcs = sorted(self.__M + self.__dcs)
         max_bits = len(self.__params)
         groups = {group_num: [] for group_num in range(max_bits+1)}
@@ -515,4 +533,15 @@ class boolean_terms:
         return "".join(term for term in simplified_POS)
     
     def print_summary(self) -> None:
-        pass
+        summary = print(f"""\n\nSummary
+
+Truth table:
+{self.truth_table(print_table=False)}
+Minterms: {", ".join(str(minterm) for minterm in self.__m)}
+Maxterms: {", ".join(str(maxterm) for maxterm in self.__M)}
+Don't cares: {", ".join(str(dc) for dc in self.__dcs)}
+
+Sum of Products form (SOP): {self.SOP_form()}
+Products of Sums form (POS): {self.POS_form()}
+Prime implicants: {self.prime_implicants()}
+""")
