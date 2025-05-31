@@ -42,4 +42,37 @@ Example usage is shown in `main.py`.
 **Code**
 ```py
 from boolmods import *
+set_complement("\\")
+expression = "(AB)\\(B\\+C)+B(A\\C+AD\\)"
+expression = "A + CD(A)"
+f = boolean_expression(expression)
+f.print_summary()
 ```
+
+**Output**
+```
+
+
+Summary
+
+Truth table:
+ A | C | D | OUT
+-----------------
+ 0 | 0 | 0 |  0
+ 0 | 0 | 1 |  0
+ 0 | 1 | 0 |  0
+ 0 | 1 | 1 |  0
+ 1 | 0 | 0 |  1
+ 1 | 0 | 1 |  1
+ 1 | 1 | 0 |  1
+ 1 | 1 | 1 |  1
+
+Minterms: 4, 5, 6, 7
+Maxterms: 0, 1, 2, 3
+
+Sum of Products form (SOP): A
+Products of Sums form (POS): (A)
+Prime implicants: A
+Gate Input Cost (GIC): 5
+```
+
