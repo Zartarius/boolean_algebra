@@ -451,9 +451,7 @@ class boolean_terms:
             bin_str = _my_bin(minterm_dc, num_bits=max_bits)
             groups[bin_str.count("1")].append((minterm_dc, bin_str))
 
-        if self.__p_impl == None:
-            self.__p_impl = _gen_prime_implicants(groups, max_bits)
-        p_implicants = self.__p_impl
+        p_implicants = _gen_prime_implicants(groups, max_bits)
 
         implicant_chart = {minterm: [] for minterm in self.__m}
 
@@ -481,7 +479,7 @@ class boolean_terms:
         return "+".join(term for term in simplified_SOP)
 
     def POS_form(self):
-        maxterms_dcs = self.__M + self.__dcs
+        maxterms_dcs = sorted(self.__M + self.__dcs)
         max_bits = len(self.__params)
         groups = {group_num: [] for group_num in range(max_bits+1)}
 
