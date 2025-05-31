@@ -370,7 +370,7 @@ class boolean_expression:
 
     def print_summary(self) -> None:
         min_max_terms = self.min_max_terms()
-        print(f"""\n\nSummary
+        print(f"""Summary
 
 Truth table:
 {self.truth_table(print_table=False)}
@@ -533,7 +533,7 @@ class boolean_terms:
         return "".join(term for term in simplified_POS)
     
     def print_summary(self) -> None:
-        summary = print(f"""\n\nSummary
+        summary = print(f"""Summary
 
 Truth table:
 {self.truth_table(print_table=False)}
