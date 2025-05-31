@@ -41,10 +41,20 @@ Example usage is shown in `main.py`.
 
 **Code**
 ```py
-from boolmods import *
+from elec2141 import *
+
 set_complement("\\")
-f = boolean_expression("(AB)\\(B\\+C)+B(A\\C+AD\\)")
+expression = "(AB)\\(B\\+C)+B(A\\C+AD\\)"
+f = boolean_expression(expression)
 f.print_summary()
+
+print("---------------------------------------------")
+
+minterms = (5,7,11,12,27,29)
+dcs = (14,20,21,22,23)
+params = ('A', 'B', 'C', 'D', 'E')
+g = boolean_terms(params, minterms=minterms, dcs=dcs)
+g.print_summary()
 ```
 
 **Output**
@@ -78,5 +88,53 @@ Sum of Products form (SOP): B\+A\C+AD\
 Products of Sums form (POS): (A+B\+C)(A\+B\+D\)
 Prime implicants: B\, A\C, AD\, CD\
 Gate Input Cost (GIC): 20
+        
+---------------------------------------------
+Summary
+
+Truth table:
+ A | B | C | D | E | OUT
+---------------------------
+ 0 | 0 | 0 | 0 | 0 |  0
+ 0 | 0 | 0 | 0 | 1 |  0
+ 0 | 0 | 0 | 1 | 0 |  0
+ 0 | 0 | 0 | 1 | 1 |  0
+ 0 | 0 | 1 | 0 | 0 |  0
+ 0 | 0 | 1 | 0 | 1 |  1
+ 0 | 0 | 1 | 1 | 0 |  0
+ 0 | 0 | 1 | 1 | 1 |  1
+ 0 | 1 | 0 | 0 | 0 |  0
+ 0 | 1 | 0 | 0 | 1 |  0
+ 0 | 1 | 0 | 1 | 0 |  0
+ 0 | 1 | 0 | 1 | 1 |  1
+ 0 | 1 | 1 | 0 | 0 |  1
+ 0 | 1 | 1 | 0 | 1 |  0
+ 0 | 1 | 1 | 1 | 0 |  -
+ 0 | 1 | 1 | 1 | 1 |  0
+ 1 | 0 | 0 | 0 | 0 |  0
+ 1 | 0 | 0 | 0 | 1 |  0
+ 1 | 0 | 0 | 1 | 0 |  0
+ 1 | 0 | 0 | 1 | 1 |  0
+ 1 | 0 | 1 | 0 | 0 |  -
+ 1 | 0 | 1 | 0 | 1 |  -
+ 1 | 0 | 1 | 1 | 0 |  -
+ 1 | 0 | 1 | 1 | 1 |  -
+ 1 | 1 | 0 | 0 | 0 |  0
+ 1 | 1 | 0 | 0 | 1 |  0
+ 1 | 1 | 0 | 1 | 0 |  0
+ 1 | 1 | 0 | 1 | 1 |  1
+ 1 | 1 | 1 | 0 | 0 |  0
+ 1 | 1 | 1 | 0 | 1 |  1
+ 1 | 1 | 1 | 1 | 0 |  0
+ 1 | 1 | 1 | 1 | 1 |  0
+
+Minterms: 5, 7, 11, 12, 27, 29
+Maxterms: 0, 1, 2, 3, 4, 6, 8, 9, 10, 13, 15, 16, 17, 18, 19, 24, 25, 26, 28, 30, 31
+Don't cares: 14, 20, 21, 22, 23
+
+Sum of Products form (SOP): B'CE+A'BCE'+ACD'E+BC'DE
+Products of Sums form (POS): (B+C)(A'+E)(B+E)(C+D)(C+E)(B'+C'+D')(A+B'+C'+E')
+Prime implicants: AB'C, B'CE, A'BCE', ACD'E, BC'DE
+
 ```
 
