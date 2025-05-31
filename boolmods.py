@@ -45,7 +45,7 @@ def _gen_prime_implicants(groups, max_bits):
 def _gen_ess_implicants(implicant_chart):
     if all(len(row) == 0 for row in implicant_chart.values()):
         return []
-
+    
     ess_implicants = []
     for minterm in tuple(implicant_chart.keys()):
         if minterm in implicant_chart.keys() and len(implicant_chart[minterm]) == 1:
@@ -53,7 +53,7 @@ def _gen_ess_implicants(implicant_chart):
             ess_implicants.append(ess_implicant[-1])
             for covered_minterm in ess_implicant[:-1]:
                 implicant_chart.pop(covered_minterm, None)
-    
+
     rem_minterms = tuple(implicant_chart.keys())
     for i in range(len(rem_minterms)):
         if rem_minterms[i] not in implicant_chart.keys():
@@ -69,11 +69,13 @@ def _gen_ess_implicants(implicant_chart):
                 implicant_chart.pop(rem_minterms[j])
 
     colwise_implicant_chart = {prime_implicant: [] for prime_implicant in _flatten_matrix(implicant_chart.values())}
+
     for minterm, prime_implicants in implicant_chart.items():
         for prime_implicant in prime_implicants:
             colwise_implicant_chart[prime_implicant].append(minterm)
 
     rem_implicants = tuple(colwise_implicant_chart.keys())
+
     for i in range(len(rem_implicants)):
         col1 = colwise_implicant_chart[rem_implicants[i]]
         for j in range(i+1, len(rem_implicants)):
@@ -86,7 +88,7 @@ def _gen_ess_implicants(implicant_chart):
                 for minterm, prime_implicants in implicant_chart.items():
                     if rem_implicants[i] in prime_implicants:
                         implicant_chart[minterm].remove(rem_implicants[i])
-               
+
     return ess_implicants  + _gen_ess_implicants(implicant_chart)
 
 '''
@@ -422,7 +424,7 @@ class boolean_terms:
     def min_max_terms(self):
         return {"minterms": self.__m, "maxterms": self.__M, "don't cares": self.__dcs}
         
-    def truth_table(self):
+    def truth_table(self, print_table:bool=True):
         truth_table = ""
         for param in self.__params:
             truth_table += f" {param} |"
@@ -435,6 +437,9 @@ class boolean_terms:
             if bits in self.__m: truth_table += "  1\n"
             elif bits in self.__M: truth_table += "  0\n"
             else: truth_table += "  -\n"
+
+        if not print_table:
+            return truth_table
         print(truth_table)
     
     def SOP_form(self):
@@ -445,7 +450,7 @@ class boolean_terms:
         for minterm_dc in minterms_dcs:
             bin_str = _my_bin(minterm_dc, num_bits=max_bits)
             groups[bin_str.count("1")].append((minterm_dc, bin_str))
-        
+
         if self.__p_impl == None:
             self.__p_impl = _gen_prime_implicants(groups, max_bits)
         p_implicants = self.__p_impl
@@ -510,3 +515,6 @@ class boolean_terms:
         sorting_key = lambda term: sum(ord(char) for char in term if char not in {"(", ")", "+", self.__cmpl})
         simplified_POS = sorted(simplified_POS, key=sorting_key)
         return "".join(term for term in simplified_POS)
+    
+    def print_summary(self) -> None:
+        pass
