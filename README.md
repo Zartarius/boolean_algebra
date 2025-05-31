@@ -2,7 +2,7 @@
 Modules to help with problems relating to boolean algebra and digital circuit design (calculating Gate Input Cost, boolean simplification, printing truth tables, SOP/POS form, prime implicants etc). Many of the k-map solvers and boolean expression simplifiers online simplify expressions incorrectly, especially when it comes to problems with "don't care conditions", this module aims to solve that. 
 
 Example usage is shown in `main.py`.
-Requires 0 external libraries or packages. 
+*Requires 0 external libraries or packages*. 
 
 
 - `set_complement`: Takes in a string that will be used as the complement (logical NOT) symbol. Default complement is set to `'`.
