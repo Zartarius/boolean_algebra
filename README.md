@@ -43,36 +43,40 @@ Example usage is shown in `main.py`.
 ```py
 from boolmods import *
 set_complement("\\")
-expression = "(AB)\\(B\\+C)+B(A\\C+AD\\)"
-expression = "A + CD(A)"
-f = boolean_expression(expression)
+f = boolean_expression("(AB)\\(B\\+C)+B(A\\C+AD\\)")
 f.print_summary()
 ```
 
 **Output**
 ```
-
-
 Summary
 
 Truth table:
- A | C | D | OUT
------------------
- 0 | 0 | 0 |  0
- 0 | 0 | 1 |  0
- 0 | 1 | 0 |  0
- 0 | 1 | 1 |  0
- 1 | 0 | 0 |  1
- 1 | 0 | 1 |  1
- 1 | 1 | 0 |  1
- 1 | 1 | 1 |  1
+ A | B | C | D | OUT
+----------------------
+ 0 | 0 | 0 | 0 |  1
+ 0 | 0 | 0 | 1 |  1
+ 0 | 0 | 1 | 0 |  1
+ 0 | 0 | 1 | 1 |  1
+ 0 | 1 | 0 | 0 |  0
+ 0 | 1 | 0 | 1 |  0
+ 0 | 1 | 1 | 0 |  1
+ 0 | 1 | 1 | 1 |  1
+ 1 | 0 | 0 | 0 |  1
+ 1 | 0 | 0 | 1 |  1
+ 1 | 0 | 1 | 0 |  1
+ 1 | 0 | 1 | 1 |  1
+ 1 | 1 | 0 | 0 |  1
+ 1 | 1 | 0 | 1 |  0
+ 1 | 1 | 1 | 0 |  1
+ 1 | 1 | 1 | 1 |  0
 
-Minterms: 4, 5, 6, 7
-Maxterms: 0, 1, 2, 3
+Minterms: 0, 1, 2, 3, 6, 7, 8, 9, 10, 11, 12, 14
+Maxterms: 4, 5, 13, 15
 
-Sum of Products form (SOP): A
-Products of Sums form (POS): (A)
-Prime implicants: A
-Gate Input Cost (GIC): 5
+Sum of Products form (SOP): B\+A\C+AD\
+Products of Sums form (POS): (A+B\+C)(A\+B\+D\)
+Prime implicants: B\, A\C, AD\, CD\
+Gate Input Cost (GIC): 20
 ```
 
