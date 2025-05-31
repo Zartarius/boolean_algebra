@@ -1,7 +1,7 @@
 # Boolean Algebra modules
 Modules to help with problems relating to boolean algebra and digital circuit design (calculating Gate Input Cost, boolean simplification, printing truth tables, SOP/POS form, prime implicants etc). Many of the k-map solvers and boolean expression simplifiers online simplify expressions incorrectly, especially when it comes to problems with "don't care conditions", this module aims to solve that. 
 
-Example usage is shown in `main.py`.
+Example usage is shown below, and also in `main.py`.
 *Requires 0 external libraries or packages*. 
 
 
