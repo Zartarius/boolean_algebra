@@ -36,3 +36,10 @@ Example usage is shown in `main.py`.
 - Functionality to accomodate for multi-character parameters will be added later.
 - `SOP_form` and `POS_form` have significantly slower runtimes for equations with more than 9-10 different parameters, due to the exponential time complexity of the Quine McCluskey algorithmn.
 - Whitespace will automatically be removed from all input strings.
+
+# Example program
+
+**Code**
+```py
+from boolmods import *
+```
