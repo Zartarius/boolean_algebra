@@ -57,7 +57,7 @@ g = boolean_terms(params, minterms=minterms, dcs=dcs)
 g.print_summary()
 ```
 
-**Output**
+**Console output**
 ```
 Summary
 
