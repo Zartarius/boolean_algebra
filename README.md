@@ -37,7 +37,7 @@ Example usage is shown below, and also in `main.py`.
 - `SOP_form` and `POS_form` have significantly slower runtimes for equations with more than 9-10 different parameters, due to the exponential time complexity of the Quine McCluskey algorithmn.
 - Whitespace will automatically be removed from all input strings.
 
-# Example program
+# Example usage
 
 **Code**
 ```py
