@@ -21,7 +21,7 @@ Example usage is shown below, and also in `main.py`.
 
 
 **boolean_terms**
-- `__init__`: Takes in a tuple of parameter names (type `str`) (i.e. ("A", "B", "C"). Additionally, *either* minterms or maxterms can be passed in as a tuple of type `int` (or both), default argument for both is an empty tuple => if only minterms are passed in, maxterms will be automatically deduced and vice versa. Also optionally takes in a tuple of don't care conditions, default is once again an empty tuple.
+- `__init__`: Takes in a tuple of parameter names (type `str`) (i.e. ("A", "B", "C")). Additionally, *either* minterms or maxterms can be passed in as a tuple of type `int` (or both), default argument for both is an empty tuple => if only minterms are passed in, maxterms will be automatically deduced and vice versa. Also optionally takes in a tuple of don't care conditions, default is once again an empty tuple.
 - `print_summary`: Prints the truth table, min and max terms, don't care conditions, *simplified* Sum of Products (SOP) form, *simplified* Product of Sums (POS) form and prime implicants => does everything listed below (except evaluate), basically all you need. 
 - `evaluate`: Evaluates the expression, inputs must be given in as a single string in the form `"A=1,B=0,C=1"`, *all* parameters need to be assigned a value.
 - `truth_table`: Prints the truth table.
